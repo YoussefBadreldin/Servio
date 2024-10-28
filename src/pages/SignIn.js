@@ -6,7 +6,6 @@ import "../styles/SignIn.css"; // Ensure this file name matches exactly
 function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [studentId, setStudentId] = useState("");
   
   // Initialize useNavigate
   const navigate = useNavigate(); 
@@ -19,8 +18,6 @@ function SignIn() {
       email,
       "Password:",
       password,
-      "Student ID:",
-      studentId
     );
 
     // After handling logic, navigate to ServiceDiscovery page
