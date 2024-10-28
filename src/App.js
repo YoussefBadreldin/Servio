@@ -3,10 +3,10 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
-import Welcome from "./pages/Welcome";
+import Home from "./pages/Home";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
-import Chatbot from "./pages/Chatbot"; // Import the Chatbot component
+import ServiceDiscovery from "./pages/ServiceDiscovery"; // Import the Chatbot component
 import Navbar from "./components/Navbar";
 
 function App() {
@@ -30,10 +30,10 @@ function App() {
         <Navbar userProfile={userProfile} />
         <h1>{message}</h1>
         <Routes>
-          <Route path="/" element={<Welcome />} />
+          <Route path="/" element={<Home />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
-          <Route path="/chatbot" element={<Chatbot />} /> {/* Add Chatbot route */}
+          <Route path="/ServiceDiscovery" element={<ServiceDiscovery />} /> {/* Add Chatbot route */}
           <Route path="/admin" element={<div>Admin Page</div>} />
         </Routes>
       </div>

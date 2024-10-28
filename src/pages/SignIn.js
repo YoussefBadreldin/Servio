@@ -1,12 +1,15 @@
 // src/pages/SignIn.js
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; // Import useNavigate
 import "../styles/SignIn.css"; // Ensure this file name matches exactly
 
 function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [studentId, setStudentId] = useState("");
+  
+  // Initialize useNavigate
+  const navigate = useNavigate(); 
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -19,13 +22,15 @@ function SignIn() {
       "Student ID:",
       studentId
     );
+
+    // After handling logic, navigate to ServiceDiscovery page
+    navigate("/servicediscovery"); 
   };
 
   return (
     <div className="signin-container">
       <h2> Sign In</h2>
       <form onSubmit={handleSubmit}>
-       
         <input
           type="email"
           placeholder="Email"

@@ -1,68 +1,87 @@
-/* src/pages/Chatbot.css */
-.chatbot-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 200%;
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-}
+/* src/pages/ServiceDiscovery.css */
 
-.chatbox {
-  flex: 1;
-  padding: 20px;
-  overflow-y: auto;
- 
-}
-
-.message {
-  margin: 10px 0;
-  padding: 10px;
-  border-radius: 5px;
-  max-width: 80%;
-}
-
-.user {
-  background-color: #007bff;
-  color: #fff;
-  align-self: flex-end;
-}
-
-.bot {
-  background-color: #eaeaea;
-  color: #333;
-  align-self: flex-start;
-}
-
-.input-container {
-  display: flex;
-  padding: 10px;
-  background-color: #fff;
-  border-top: 1px solid #ccc;
-}
-
-.input-container input {
-  flex: 1;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  margin-right: 10px;
-  font-size: 16px;
-}
-
-.input-container button {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  background-color: #007bff;
-  color: #ece9e9;
-  cursor: pointer;
-}
-
-.input-container button:hover {
-  background-color: #0056b3;
-}
+.service-discovery-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%; /* Full width */
+    max-width: 800px; /* Max width for the container */
+    margin: 0 auto; /* Center the container */
+    padding: 20px; /* Padding inside the container */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Shadow for depth */
+    background-color: #fff; /* White background for the container */
+  }
+  
+  h2 {
+    margin-bottom: 20px; /* Space below the heading */
+  }
+  
+  .search-bar-container {
+    display: flex;
+    width: 100%; /* Full width for the search bar container */
+    align-items: center; /* Center items vertically */
+  }
+  
+  .search-input {
+    flex: 1; /* Take available space */
+    padding: 10px; /* Padding for input */
+    border: 1px solid #ccc; /* Light border */
+    border-radius: 5px; /* Rounded corners for input */
+    margin-right: 10px; /* Space between input and button */
+    font-size: 16px; /* Font size */
+  }
+  
+  .spark-button {
+    width: 50px; /* Fixed width for the spark button */
+    height: 50px; /* Fixed height for the spark button */
+    border: none; /* No border */
+    border-radius: 50%; /* Circular shape */
+    background-color: #ef745c; /* Button color */
+    color: #fff; /* Text color */
+    cursor: pointer; /* Pointer cursor on hover */
+    display: flex; /* Flexbox for centering the icon */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    overflow: hidden; /* Allow spark effect */
+  }
+  
+  .spark-button:focus {
+    outline: none; /* Remove default focus outline */
+  }
+  
+  .spark-button:hover {
+    background-color: #e5624f; /* Slightly darker on hover */
+  }
+  
+  .spark-button:active {
+    animation: spark 0.4s ease-out; /* Spark effect on click */
+  }
+  
+  @keyframes spark {
+    0% {
+      transform: scale(1);
+      box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+    }
+    50% {
+      transform: scale(1.1);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
+    }
+    100% {
+      transform: scale(1);
+      box-shadow: 0 0 5px rgba(255, 255, 255, 0);
+    }
+  }
+  
+  .chatbot-container {
+    margin-top: 20px; /* Space above chatbot */
+    width: 100%; /* Full width for the chatbot */
+    padding: 20px; /* Padding inside the chatbot */
+    border: 1px solid #ccc; /* Border around the chatbot */
+    border-radius: 5px; /* Rounded corners for chatbot */
+    background-color: #f9f9f9; /* Light background for chat messages */
+  }
+  
+  /* Additional styles for chat messages, etc. */
+  

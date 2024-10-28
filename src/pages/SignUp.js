@@ -1,5 +1,6 @@
 // src/pages/SignUp.js
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import '../styles/SignUp.css'; // Should match the file name
 
 function SignUp() {
@@ -8,6 +9,9 @@ function SignUp() {
   const [password, setPassword] = useState("");
   const [Confermpassword, setConfermpassword] = useState("");
   const [phone, setPhone] = useState("");
+
+  // Initialize useNavigate
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -20,9 +24,12 @@ function SignUp() {
       password,
       "Phone:",
       phone,
-      Confermpassword,
       "Confermpassword:",
+      Confermpassword // Fixed here to log Confermpassword correctly
     );
+
+    // After handling logic, navigate to ServiceDiscovery page
+    navigate("/servicediscovery");
   };
 
   return (
@@ -57,11 +64,11 @@ function SignUp() {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-         <input
-          type="Conferm password"
-          placeholder="Conferm Password"
+        <input
+          type="password" // Fixed type to 'password'
+          placeholder="Confirm Password" // Fixed placeholder
           value={Confermpassword}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => setConfermpassword(e.target.value)} // Fixed to use setConfermpassword
           required
         />
         <button type="submit">Sign Up</button>
