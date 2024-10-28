@@ -1,6 +1,5 @@
 // src/pages/ChatBot.js
 import React from "react";
-import "../styles/ChatBot.css";
 
 const ChatBot = ({ messages, handleSendMessage }) => {
   return (
