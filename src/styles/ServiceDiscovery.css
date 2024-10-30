@@ -1,5 +1,4 @@
-/* src/pages/ServiceDiscovery.css */
-
+/* Service Discovery Container */
 .service-discovery-container {
   display: flex;
   flex-direction: column;
@@ -7,34 +6,39 @@
   align-items: center;
   width: 100%;
   max-width: 800px;
-  margin: 0 auto;
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  margin: 30px auto; /* Centering the container */
+  margin: 100;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   background-color: #ffffff;
+  z-index: 1; /* Ensures it's below the navbar */
+  margin-top: 200px; /* Additional margin to avoid overlap */
 }
 
+/* Heading */
 h2 {
-  margin-bottom: 24px;
-  font-size: 1.8rem;
+  margin-bottom: 30px; /* Increased bottom margin for spacing */
+  font-size: 2rem; /* Larger font size for emphasis */
   color: #333;
 }
 
+/* Search Bar Container */
 .search-bar-container {
   display: flex;
   width: 100%;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 25px; /* Increased margin for better spacing */
 }
 
 .search-input {
   flex: 1;
-  padding: 12px;
+  padding: 14px; /* Slightly larger padding for better usability */
   border: 1px solid #ddd;
   border-radius: 8px;
-  margin-right: 10px;
+  margin-right: 12px; /* Adjusted margin for spacing */
   font-size: 16px;
-  transition: border-color 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .search-input:focus {
@@ -44,40 +48,42 @@ h2 {
 }
 
 .search-button {
-  padding: 12px 20px;
+  padding: 12px 24px; /* Increased padding for a larger button */
   border: none;
   border-radius: 8px;
   background-color: #007bff;
   color: #fff;
   font-size: 16px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .search-button:hover {
   background-color: #0056b3;
+  transform: translateY(-1px); /* Slight lift effect on hover */
 }
 
+/* Smart Assistant Container */
 .smart-assistant-container {
   text-align: center;
-  margin-top: 20px;
+  margin-top: 25px; /* Increased margin for spacing */
 }
 
 .smart-assistant-container p {
   font-size: 1rem;
   color: #666;
-  margin-bottom: 8px;
+  margin-bottom: 10px; /* Increased margin for spacing */
 }
 
 .spark-button {
-  padding: 10px 20px;
+  padding: 10px 24px; /* Adjusted padding for consistency */
   border: none;
   border-radius: 8px;
   background-color: #ef745c;
   color: #fff;
   font-size: 16px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .spark-button:focus {
@@ -86,14 +92,21 @@ h2 {
 
 .spark-button:hover {
   background-color: #e5624f;
+  transform: translateY(-1px); /* Slight lift effect on hover */
 }
 
+/* Service Results */
 .service-results {
   width: 100%;
-  margin-top: 20px;
+  margin: 30px 0; /* Added margin above and below results for spacing */
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 20px; /* Increased gap for better separation */
+  overflow-y: auto; /* Allow vertical scrolling if content overflows */
+  max-height: 400px; /* Set a max height for the results container */
+  border: 1px solid #ddd; /* Border around results for clarity */
+  border-radius: 8px; /* Rounded corners */
+  padding: 15px; /* Padding for content spacing */
 }
 
 .service-item {
@@ -106,14 +119,14 @@ h2 {
 }
 
 .service-item h3 {
-  margin: 0 0 5px;
-  font-size: 1.2rem;
+  margin: 0 0 10px; /* Adjusted margin for spacing */
+  font-size: 1.4rem; /* Increased font size for headings */
   color: #333;
 }
 
 .service-item p {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 1rem; /* Adjusted font size for better readability */
   color: #666;
 }
 
@@ -132,25 +145,25 @@ h2 {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.6); /* Darker background for better contrast */
   z-index: 1000;
 }
 
 .chatbot-modal-content {
   position: relative;
-  width: 80%;
+  width: 90%; /* Increased width for better responsiveness */
   max-width: 500px;
   background: #ffffff;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  padding: 30px; /* Increased padding for content */
+  border-radius: 12px; /* Adjusted border radius */
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
 }
 
 .close-button {
   position: absolute;
   top: 10px;
   right: 15px;
-  font-size: 20px;
+  font-size: 24px; /* Increased font size for better visibility */
   color: #333;
   background: none;
   border: none;
@@ -158,5 +171,5 @@ h2 {
 }
 
 .close-button:hover {
-  color: #007bff;
+  color: #007bff; /* Highlight color on hover */
 }

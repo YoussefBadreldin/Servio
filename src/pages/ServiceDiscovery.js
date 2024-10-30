@@ -1,27 +1,31 @@
 // src/pages/ServiceDiscovery.js
 import React, { useState } from "react";
 import "../styles/ServiceDiscovery.css";
-import ChatBot from "../components/ChatBot.js";
+import ChatBot from "../components/ChatBot.js"; // Ensure ChatBot is imported
 
 const services = [
-  { id: 1, name: "API Integration", category: "Software", description: "Helps integrate APIs." },
-  { id: 2, name: "Web Hosting", category: "Infrastructure", description: "Provides web hosting services." },
-  { id: 3, name: "Data Analysis", category: "Analytics", description: "Offers data analysis services." },
+  { id: 1, name: "User Management Service", category: "Core Banking", description: "Handles user registration and authentication." },
+  { id: 2, name: "Account Management Service", category: "Core Banking", description: "Manages bank accounts and account transactions." },
+  { id: 3, name: "Transaction Service", category: "Transactions", description: "Processes deposits, withdrawals, and transfers." },
+  { id: 4, name: "Payment Gateway Service", category: "Payments", description: "Integrates with external payment providers for transactions." },
+  { id: 5, name: "Fraud Detection Service", category: "Security", description: "Monitors transactions for fraudulent activity." },
+  { id: 6, name: "Notification Service", category: "Communication", description: "Sends alerts and notifications to users." },
 ];
+
+const categories = ["All", "Core Banking", "Transactions", "Payments", "Security", "Communication"];
 
 const ServiceDiscovery = () => {
   const [nameInput, setNameInput] = useState("");
-  const [categoryInput, setCategoryInput] = useState("");
+  const [categoryInput, setCategoryInput] = useState("All");
   const [descriptionInput, setDescriptionInput] = useState("");
   const [filteredServices, setFilteredServices] = useState([]);
-  const [messages, setMessages] = useState([]);
-  const [chatVisible, setChatVisible] = useState(false);
+  const [chatVisible, setChatVisible] = useState(false); // State to toggle chatbot visibility
 
   const handleSearch = () => {
     const results = services.filter((service) => {
       return (
         (!nameInput || service.name.toLowerCase().includes(nameInput.toLowerCase())) &&
-        (!categoryInput || service.category.toLowerCase().includes(categoryInput.toLowerCase())) &&
+        (categoryInput === "All" || service.category === categoryInput) &&
         (!descriptionInput || service.description.toLowerCase().includes(descriptionInput.toLowerCase()))
       );
     });
@@ -29,7 +33,7 @@ const ServiceDiscovery = () => {
   };
 
   const toggleChat = () => {
-    setChatVisible((prev) => !prev);
+    setChatVisible((prev) => !prev); // Toggle chatbot visibility
   };
 
   return (
@@ -44,13 +48,19 @@ const ServiceDiscovery = () => {
           placeholder="Service Name"
           className="search-input"
         />
-        <input
-          type="text"
+        
+        <select
           value={categoryInput}
           onChange={(e) => setCategoryInput(e.target.value)}
-          placeholder="Category"
           className="search-input"
-        />
+        >
+          {categories.map((category) => (
+            <option key={category} value={category}>
+              {category}
+            </option>
+          ))}
+        </select>
+
         <input
           type="text"
           value={descriptionInput}
@@ -58,6 +68,7 @@ const ServiceDiscovery = () => {
           placeholder="Description or Keywords"
           className="search-input"
         />
+        
         <button className="search-button" onClick={handleSearch}>
           Search
         </button>
@@ -66,28 +77,25 @@ const ServiceDiscovery = () => {
       <div className="smart-assistant-container">
         <p>Need more accurate results?</p>
         <button className="spark-button" onClick={toggleChat}>
-          Use Servio AI
+          Chat with Servio AI
         </button>
       </div>
 
       <div className="service-results">
-        {filteredServices.map((service) => (
-          <div key={service.id} className="service-item">
-            <h3>{service.name}</h3>
-            <p>{service.description}</p>
-          </div>
-        ))}
+        {filteredServices.length > 0 ? (
+          filteredServices.map((service) => (
+            <div key={service.id} className="service-item">
+              <h3>{service.name}</h3>
+              <p>{service.description}</p>
+            </div>
+          ))
+        ) : (
+          <p>No services found. Please adjust your search criteria.</p>
+        )}
       </div>
 
-      {/* Chatbot modal popup */}
-      {chatVisible && (
-        <div className="chatbot-modal">
-          <div className="chatbot-modal-content">
-            <button className="close-button" onClick={toggleChat}>×</button>
-            <ChatBot messages={messages} handleSendMessage={() => {}} />
-          </div>
-        </div>
-      )}
+      {/* Render the ChatBot component if chatVisible is true */}
+      {chatVisible && <ChatBot />}
     </div>
   );
 };

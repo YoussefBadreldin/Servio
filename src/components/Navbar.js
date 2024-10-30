@@ -24,6 +24,7 @@ function Navbar({ isLoggedIn, username }) {
         )}
       </ul>
     </nav>
+    
   );
 }
 
