@@ -1,34 +1,29 @@
 // src/pages/SignUp.js
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
-import '../styles/SignUp.css'; // Should match the file name
+import { useNavigate, Link } from "react-router-dom";
+import '../styles/SignUp.css';
 
 function SignUp() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [Confermpassword, setConfermpassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState(""); // Fixed typo: "Confermpassword" to "confirmPassword"
   const [phone, setPhone] = useState("");
 
-  // Initialize useNavigate
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log(
-      "Name:",
-      name,
-      "Email:",
-      email,
-      "Password:",
-      password,
-      "Phone:",
-      phone,
-      "Confermpassword:",
-      Confermpassword // Fixed here to log Confermpassword correctly
+      "Name:", name,
+      "Email:", email,
+      "Password:", password,
+      "Phone:", phone,
+      "Confirm Password:", confirmPassword
     );
 
-    // After handling logic, navigate to ServiceDiscovery page
+    // Add your sign-up logic here
+
     navigate("/servicediscovery");
   };
 
@@ -45,7 +40,7 @@ function SignUp() {
         />
         <input
           type="tel"
-          placeholder="Phone number"
+          placeholder="Phone Number"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           required
@@ -65,14 +60,36 @@ function SignUp() {
           required
         />
         <input
-          type="password" // Fixed type to 'password'
-          placeholder="Confirm Password" // Fixed placeholder
-          value={Confermpassword}
-          onChange={(e) => setConfermpassword(e.target.value)} // Fixed to use setConfermpassword
+          type="password"
+          placeholder="Confirm Password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
           required
         />
         <button type="submit">Sign Up</button>
       </form>
+
+      <div className="social-login">
+        <img
+          src="/assets/Google__G__logo.svg.png"
+          alt="Sign up with Google"
+          onClick={() => console.log("Google login")}
+        />
+        <img
+          src="/assets/facebook-logo.png"
+          alt="Sign up with Facebook"
+          onClick={() => console.log("Facebook login")}
+        />
+        <img
+          src="/assets/apple-logo.png"
+          alt="Sign up with Apple"
+          onClick={() => console.log("Apple login")}
+        />
+      </div>
+
+      <div className="footer-links">
+        <Link to="/signin">Have an account? Sign In</Link>
+      </div>
     </div>
   );
 }

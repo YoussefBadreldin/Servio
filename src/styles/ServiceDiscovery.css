@@ -5,97 +5,158 @@
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  width: 100%; /* Full width */
-  max-width: 800px; /* Max width for the container */
-  margin: 0 auto; /* Center the container */
-  padding: 20px; /* Padding inside the container */
-  border-radius: 10px; /* Rounded corners */
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Shadow for depth */
-  background-color: #fff; /* White background for the container */
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background-color: #ffffff;
 }
 
 h2 {
-  margin-bottom: 20px; /* Space below the heading */
+  margin-bottom: 24px;
+  font-size: 1.8rem;
+  color: #333;
 }
 
 .search-bar-container {
   display: flex;
-  width: 100%; /* Full width for the search bar container */
-  align-items: center; /* Center items vertically */
+  width: 100%;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
 .search-input {
-  flex: 1; /* Take available space */
-  padding: 10px; /* Padding for input */
-  border: 1px solid #ccc; /* Light border */
-  border-radius: 5px; /* Rounded corners for input */
-  margin-right: 10px; /* Space between input and button */
-  font-size: 16px; /* Font size */
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-right: 10px;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+}
+
+.search-input:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+.search-button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  background-color: #007bff;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.search-button:hover {
+  background-color: #0056b3;
+}
+
+.smart-assistant-container {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.smart-assistant-container p {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 8px;
 }
 
 .spark-button {
-  width: 50px; /* Fixed width for the spark button */
-  height: 50px; /* Fixed height for the spark button */
-  border: none; /* No border */
-  border-radius: 50%; /* Circular shape */
-  background-color: #ef745c; /* Button color */
-  color: #fff; /* Text color */
-  cursor: pointer; /* Pointer cursor on hover */
-  display: flex; /* Flexbox for centering the icon */
-  justify-content: center; /* Center horizontally */
-  align-items: center; /* Center vertically */
-  overflow: hidden; /* Allow spark effect */
-  font-size: 11px; /* Font size for the text */
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background-color: #ef745c;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 .spark-button:focus {
-  outline: none; /* Remove default focus outline */
+  outline: none;
 }
 
 .spark-button:hover {
-  background-color: #e5624f; /* Slightly darker on hover */
+  background-color: #e5624f;
 }
 
-.spark-button:active {
-  animation: spark 0.4s ease-out; /* Spark effect on click */
+.service-results {
+  width: 100%;
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
-@keyframes spark {
-  0% {
-    transform: scale(1);
-    box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
-  }
-  50% {
-    transform: scale(1.1);
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
-  }
-  100% {
-    transform: scale(1);
-    box-shadow: 0 0 5px rgba(255, 255, 255, 0);
-  }
+.service-item {
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #fdfdfd;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.chatbot-container {
-  margin-top: 20px; /* Space above chatbot */
-  width: 100%; /* Full width for the chatbot */
-  padding: 20px; /* Padding inside the chatbot */
-  border: 1px solid #ccc; /* Border around the chatbot */
-  border-radius: 5px; /* Rounded corners for chatbot */
-  background-color: #f9f9f9; /* Light background for chat messages */
+.service-item h3 {
+  margin: 0 0 5px;
+  font-size: 1.2rem;
+  color: #333;
 }
 
-/* Style for the Advanced Search button */
-.advanced-search-button {
-  padding: 10px 30px; /* Add padding for size */
-  border: none; /* No border */
-  border-radius: 5px; /* Rounded corners */
-  background-color: #007bff; /* Button color */
-  color: #fff; /* Text color */
-  font-size: 11px; /* Font size for the text */
-  cursor: pointer; /* Pointer cursor on hover */
-  margin-left: 10px; /* Space between search input and advanced button */
+.service-item p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #666;
 }
 
-.advanced-search-button:hover {
-  background-color: #0056b3; /* Darker on hover */
+.service-item:hover {
+  transform: scale(1.02);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Chatbot Modal Popup Styles */
+.chatbot-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.chatbot-modal-content {
+  position: relative;
+  width: 80%;
+  max-width: 500px;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 20px;
+  color: #333;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.close-button:hover {
+  color: #007bff;
 }
