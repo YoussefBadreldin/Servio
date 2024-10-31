@@ -133,3 +133,54 @@
 .response-button:hover {
     background-color: #0056b3; /* Darker shade on hover */
 }
+
+/* Star Rating Container */
+.feedback-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.star-rating {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 10px;
+}
+
+.star {
+    cursor: pointer;
+    font-size: 24px;
+    color: gray; /* Default color for stars */
+    transition: color 0.2s;
+}
+
+.star.selected {
+    color: gold; /* Color for selected stars */
+}
+
+/* Feedback input */
+.feedback-form input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 5px;
+    outline: none;
+    background-color: #e0e0e0;
+    color: #333;
+}
+
+/* Submit Feedback Button */
+.submit-feedback-button {
+    padding: 10px 15px;
+    background-color: #4b3cc5;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.submit-feedback-button:hover {
+    background-color: #0056b3; /* Darker shade on hover */
+}

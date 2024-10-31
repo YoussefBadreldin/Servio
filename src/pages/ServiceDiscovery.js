@@ -22,11 +22,16 @@ const ServiceDiscovery = () => {
   const [chatVisible, setChatVisible] = useState(false); // State to toggle chatbot visibility
 
   const handleSearch = () => {
+    const searchQuery = "banking system";
     const results = services.filter((service) => {
       return (
-        (!nameInput || service.name.toLowerCase().includes(nameInput.toLowerCase())) &&
+        ((!nameInput || service.name.toLowerCase().includes(nameInput.toLowerCase())) ||
+          service.name.toLowerCase().includes(searchQuery)) &&
+
         (categoryInput === "All" || service.category === categoryInput) &&
-        (!descriptionInput || service.description.toLowerCase().includes(descriptionInput.toLowerCase()))
+        
+        ((!descriptionInput || service.description.toLowerCase().includes(descriptionInput.toLowerCase())) ||
+          service.description.toLowerCase().includes(searchQuery))
       );
     });
     setFilteredServices(results);
