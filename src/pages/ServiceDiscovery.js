@@ -94,8 +94,8 @@ const ServiceDiscovery = () => {
         )}
       </div>
 
-      {/* Render the ChatBot component if chatVisible is true */}
-      {chatVisible && <ChatBot />}
+      {/* Render the ChatBot component and pass setChatVisible as a prop */}
+      {chatVisible && <ChatBot setChatVisible={setChatVisible} />}
     </div>
   );
 };

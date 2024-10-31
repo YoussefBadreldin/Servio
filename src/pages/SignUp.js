@@ -2,6 +2,9 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import '../styles/SignUp.css';
+import GoogleLogo from "../assets/google-logo.png"; // Adjusted import paths
+import FacebookLogo from "../assets/facebook-logo.png";
+import AppleLogo from "../assets/applelogo.png";
 
 function SignUp() {
   const [name, setName] = useState("");
@@ -71,17 +74,17 @@ function SignUp() {
 
       <div className="social-login">
         <img
-          src="/assets/Google__G__logo.svg.png"
+          src={GoogleLogo}
           alt="Sign up with Google"
           onClick={() => console.log("Google login")}
         />
         <img
-          src="/assets/facebook-logo.png"
+          src={FacebookLogo}
           alt="Sign up with Facebook"
           onClick={() => console.log("Facebook login")}
         />
         <img
-          src="/assets/apple-logo.png"
+          src={AppleLogo}
           alt="Sign up with Apple"
           onClick={() => console.log("Apple login")}
         />
