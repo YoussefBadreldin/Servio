@@ -38,7 +38,7 @@ const ServiceDiscovery = () => {
 
   return (
     <div className="service-discovery-container">
-      <h2>Service Discovery</h2>
+      <h2>Servio Service Discovery</h2>
       
       <div className="search-bar-container">
         <input
