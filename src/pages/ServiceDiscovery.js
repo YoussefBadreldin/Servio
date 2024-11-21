@@ -12,11 +12,11 @@ const services = [
   { id: 6, name: "Notification Service", category: "Communication", description: "Sends alerts and notifications to users." },
 ];
 
-const categories = ["All", "Core Banking", "Transactions", "Payments", "Security", "Communication"];
+const categories = ["Choose Searching Method", "Traditional Searching", "Advanced Searching", "Semantic Searching"];
 
 const ServiceDiscovery = () => {
-  const [nameInput, setNameInput] = useState("");
   const [categoryInput, setCategoryInput] = useState("All");
+  const [nameInput, setNameInput] = useState("");
   const [descriptionInput, setDescriptionInput] = useState("");
   const [filteredServices, setFilteredServices] = useState([]);
   const [chatVisible, setChatVisible] = useState(false); // State to toggle chatbot visibility
@@ -43,18 +43,10 @@ const ServiceDiscovery = () => {
 
   return (
     <div className="service-discovery-container">
-      <h2>Servio Service Discovery</h2>
+      <h2>SERVIO Smart Service Discovery</h2>
       
       <div className="search-bar-container">
-        <input
-          type="text"
-          value={nameInput}
-          onChange={(e) => setNameInput(e.target.value)}
-          placeholder="Service Name"
-          className="search-input"
-        />
-        
-        <select
+      <select
           value={categoryInput}
           onChange={(e) => setCategoryInput(e.target.value)}
           className="search-input"
@@ -65,12 +57,22 @@ const ServiceDiscovery = () => {
             </option>
           ))}
         </select>
+        
+        <input
+          type="text"
+          value={nameInput}
+          onChange={(e) => setNameInput(e.target.value)}
+          placeholder="Aspect 1"
+          className="search-input"
+        />
+        
+        
 
         <input
           type="text"
           value={descriptionInput}
           onChange={(e) => setDescriptionInput(e.target.value)}
-          placeholder="Description or Keywords"
+          placeholder="Aspect 2"
           className="search-input"
         />
         
@@ -82,7 +84,7 @@ const ServiceDiscovery = () => {
       <div className="smart-assistant-container">
         <p>Need more accurate results?</p>
         <button className="spark-button" onClick={toggleChat}>
-          Chat with Servio AI
+          Start Guided Service Discovery
         </button>
       </div>
 

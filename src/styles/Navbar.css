@@ -1,6 +1,6 @@
 /* src/Navbar.css */
 .navbar {
-  background-color: #333;
+  background-color: white;
   padding: 10px 20px;
   display: flex;
   justify-content: space-between;
@@ -14,7 +14,7 @@
 }
 
 .navbar-logo a {
-  color: white;
+  color: #662d91;
   font-size: 24px;
   font-weight: bold;
   text-decoration: none;
@@ -31,7 +31,7 @@
 }
 
 .navbar-links a {
-  color: white;
+  color: #662d91;
   text-decoration: none;
   font-size: 18px;
 }
@@ -42,4 +42,9 @@
 
 body {
   padding-top: 60px; /* To prevent the content from hiding under the navbar */
+}
+/* src/styles/Navbar.css */
+.navbar-logo-image {
+  width: 200px;  /* Adjust to a smaller size */
+  height: auto;  /* Maintain aspect ratio */
 }

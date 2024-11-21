@@ -5,6 +5,7 @@
 
 .signin-container h2 {
   margin-bottom: 20px;
+  color: #fff;
 }
 
 .signin-container form input {
@@ -45,7 +46,7 @@
 .footer-links a {
   display: block;
   margin: 10px 0;
-  color: #007bff;
+  color: white;
   text-decoration: none;
 }
 

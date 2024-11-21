@@ -6,11 +6,10 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: hsla(10, 82%, 65%, 1);
-    background: radial-gradient(circle, hsla(10, 82%, 65%, 1) 0%, hsla(0, 41%, 52%, 1) 26%, hsla(290, 79%, 13%, 1) 100%);
-    background: -moz-radial-gradient(circle, hsla(10, 82%, 65%, 1) 0%, hsla(0, 41%, 52%, 1) 26%, hsla(290, 79%, 13%, 1) 100%);
-    background: -webkit-radial-gradient(circle, hsla(10, 82%, 65%, 1) 0%, hsla(0, 41%, 52%, 1) 26%, hsla(290, 79%, 13%, 1) 100%);
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#ef745c", endColorstr="#4c0b0b", GradientType=1);
+    background: radial-gradient(circle, #642e91 0%, #4849a2 26%, #3958aa 100%);
+    background: -moz-radial-gradient(circle, #642e91 0%, #4849a2 26%, #3958aa 100%);
+    background: -webkit-radial-gradient(circle, #642e91 0%, #4849a2 26%, #3958aa 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#642e91", endColorstr="#3958aa", GradientType=1);
     color: white;
     text-align: center;
 }

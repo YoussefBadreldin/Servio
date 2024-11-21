@@ -2,12 +2,19 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "../styles/Navbar.css"; // Adjust the path if needed
+import Logo from "../assets/HOR_LOGO.png"; // Ensure this path is correct
 
 function Navbar({ isLoggedIn, username }) {
   return (
     <nav className="navbar">
       <div className="navbar-logo">
-        <Link to="/">Servio</Link>
+        <Link to="/">
+          <img 
+            src={Logo} 
+            alt="Servio Logo" 
+            className="navbar-logo-image" 
+          />
+        </Link>
       </div>
       <ul className="navbar-links">
         {isLoggedIn ? (
@@ -24,7 +31,6 @@ function Navbar({ isLoggedIn, username }) {
         )}
       </ul>
     </nav>
-    
   );
 }
 
