@@ -12,7 +12,7 @@ const services = [
   { id: 6, name: "Notification Service", category: "Communication", description: "Sends alerts and notifications to users." },
 ];
 
-const categories = ["Choose Searching Method", "Traditional Searching", "Advanced Searching", "Semantic Searching"];
+const categories = ["Choose Searching Method", "Traditional Searching", "Advanced Semantic Searching"];
 
 const ServiceDiscovery = () => {
   const [categoryInput, setCategoryInput] = useState("All");
