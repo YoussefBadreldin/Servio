@@ -91,7 +91,7 @@ h2 {
 }
 
 .spark-button:hover {
-  background-color: #e5624f;
+  background-color: #563b99;
   transform: translateY(-1px); /* Slight lift effect on hover */
 }
 
