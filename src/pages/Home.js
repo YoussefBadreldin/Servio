@@ -55,7 +55,7 @@ const Home = () => {
           search_type: "semantic",
           semantic_request: {
             query: searchParams.query,
-            aspects: searchParams.aspects ? [searchParams.aspects] : [], // Use user-provided aspects or empty array
+            aspects: ["python"], // Predefined
             top_n: parseInt(searchParams.topN),
           },
         };
@@ -64,8 +64,8 @@ const Home = () => {
         requestBody = {
           search_type: "syntactic",
           syntactic_request: {
-            query: "salt_key", // Predefined
-            field: searchParams.aspects, // User-provided aspects
+            query: searchParams.aspects, // Use user-provided aspects as the query
+            field: "func_name", // Predefined field
             top_n: parseInt(searchParams.topN),
           },
         };
