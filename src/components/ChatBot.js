@@ -140,7 +140,7 @@ const ChatBot = ({ setChatVisible }) => {
   return (
     <div className="chatbot-container">
       <div className="chatbot-header">
-        <h3>Servio AI</h3>
+        <h3>Servio AI Assistant</h3>
         <button className="close-button" onClick={() => setChatVisible(false)}>×</button>
       </div>
       <div className="chatbot-messages">
