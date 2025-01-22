@@ -27,7 +27,7 @@ function SignUp() {
 
     // Add your sign-up logic here
 
-    navigate("/servicediscovery");
+    navigate("/Home");
   };
 
   return (

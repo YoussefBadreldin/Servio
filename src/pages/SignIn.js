@@ -15,8 +15,8 @@ function SignIn() {
     e.preventDefault();
     console.log("Email:", email, "Password:", password);
 
-    // Navigate to ServiceDiscovery after handling logic
-    navigate("/servicediscovery"); 
+    // Navigate to Home after handling logic
+    navigate("/Home"); 
   };
 
   return (

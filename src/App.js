@@ -6,7 +6,6 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
-import ServiceDiscovery from "./pages/ServiceDiscovery"; // Import the Chatbot component
 import Navbar from "./components/Navbar";
 
 function App() {
@@ -33,7 +32,6 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
-          <Route path="/ServiceDiscovery" element={<ServiceDiscovery />} /> {/* Add Chatbot route */}
           <Route path="/admin" element={<div>Admin Page</div>} />
         </Routes>
       </div>
