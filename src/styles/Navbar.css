@@ -3,7 +3,7 @@
   background-color: white;
   padding: 10px 20px;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-between; /* Space between logo and links */
   align-items: center;
   position: fixed;
   top: 0;
@@ -13,7 +13,8 @@
 }
 
 .navbar-logo {
-  margin-right: auto; /* Push the logo to the left */
+  /* Restore the logo to its original place */
+  margin-right: 0; /* Remove any margin */
 }
 
 .navbar-logo a {
@@ -26,8 +27,9 @@
 .navbar-links {
   list-style: none;
   display: flex;
-  gap: 20px;
-  margin-left: auto; /* Push the links to the left */
+  gap: 10px; /* Reduced gap between links */
+  margin-right: 20px; /* Shift links further to the left */
+  padding-left: 0; /* Remove default padding */
 }
 
 .navbar-links li {

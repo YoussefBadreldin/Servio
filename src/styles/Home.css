@@ -257,6 +257,7 @@ select:focus {
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   text-align: center;
+  color: rgb(0, 0, 0);
 }
 
 .error-popup-content button {
