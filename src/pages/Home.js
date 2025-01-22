@@ -16,6 +16,11 @@ const Home = () => {
   const [showPopup, setShowPopup] = useState(false); // State to control popup visibility
 
   const handleSearch = async () => {
+    // Clear previous search results and error messages
+    setFilteredServices([]);
+    setErrorMessage("");
+    setShowPopup(false);
+
     // Check which fields are missing
     const missingFields = [];
     if (!searchParams.programmingLanguage) missingFields.push("programming language");
@@ -50,7 +55,7 @@ const Home = () => {
           search_type: "semantic",
           semantic_request: {
             query: searchParams.query,
-            aspects: ["python"], // Predefined
+            aspects: searchParams.aspects ? [searchParams.aspects] : [], // Use user-provided aspects or empty array
             top_n: parseInt(searchParams.topN),
           },
         };
@@ -66,11 +71,21 @@ const Home = () => {
         };
       }
 
+      // Log the request body for debugging
+      console.log("Request Body:", JSON.stringify(requestBody, null, 2));
+
       const response = await fetch("http://localhost:8000/search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody),
       });
+
+      // Log the response status for debugging
+      console.log("Response Status:", response.status);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
 
       const data = await response.json();
       setFilteredServices(data.results);
