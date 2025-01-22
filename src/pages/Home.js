@@ -21,6 +21,13 @@ const Home = () => {
     setErrorMessage("");
     setShowPopup(false);
 
+    // Check if both query and aspects are provided
+    if (searchParams.query && searchParams.aspects) {
+      setErrorMessage("Please enter either a query for semantic search or aspects for syntactic search, not both.");
+      setShowPopup(true);
+      return; // Stop further execution
+    }
+
     // Check which fields are missing
     const missingFields = [];
     if (!searchParams.programmingLanguage) missingFields.push("programming language");
