@@ -13,13 +13,11 @@ const Home = () => {
   const [chatVisible, setChatVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Check if search is disabled (missing required fields)
   const isSearchDisabled =
     !searchParams.programmingLanguage ||
     !searchParams.topN ||
     (!searchParams.query && !searchParams.aspects);
 
-  // Handle search button click
   const handleSearch = async () => {
     if (isSearchDisabled) return;
 
@@ -33,7 +31,7 @@ const Home = () => {
           search_type: "semantic",
           semantic_request: {
             query: searchParams.query,
-            aspects: ["docstring"], // Predefined
+            aspects: ["python"], // Predefined
             top_n: parseInt(searchParams.topN),
           },
         };
@@ -52,29 +50,17 @@ const Home = () => {
         return;
       }
 
-      // Log the request body for debugging
-      console.log("Request Body:", JSON.stringify(requestBody, null, 2));
-
-      // Send POST request to the server
       const response = await fetch("http://localhost:8000/search", {
-        method: "POST",
+        method: "POST", // Ensure POST method
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestBody),
+        body: JSON.stringify(requestBody), // Send data in the body
       });
 
-      // Log the response status for debugging
-      console.log("Response Status:", response.status);
-
-      // Handle non-OK responses
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
-      // Parse the response data
       const data = await response.json();
-      console.log("Response Data:", data);
-
-      // Update the filtered services state
       setFilteredServices(data.results);
     } catch (error) {
       console.error("Error during search:", error);
@@ -84,7 +70,6 @@ const Home = () => {
     }
   };
 
-  // Toggle chatbot visibility
   const handleGuidedSearch = () => setChatVisible(true);
   const toggleChat = () => setChatVisible((prev) => !prev);
 
@@ -92,9 +77,7 @@ const Home = () => {
     <div className="service-discovery-container">
       <h2>SERVIO Smart Service Discovery</h2>
 
-      {/* Search Bar */}
       <div className="search-bar-container">
-        {/* First Line: Query and Aspects */}
         <div className="input-row">
           <input
             type="text"
@@ -112,7 +95,6 @@ const Home = () => {
           />
         </div>
 
-        {/* Second Line: Programming Language and Top N */}
         <div className="input-row">
           <label htmlFor="programming-language">Programming Language</label>
           <select
@@ -143,7 +125,6 @@ const Home = () => {
           </select>
         </div>
 
-        {/* Third Line: Search Button */}
         <div className="input-row center">
           <button className="search-button" onClick={handleSearch} disabled={isSearchDisabled || isLoading}>
             {isLoading ? "Searching..." : "Search"}
@@ -151,7 +132,6 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Smart Assistant Section */}
       <div className="smart-assistant-container">
         <p>Need more accurate results?</p>
         <button className="spark-button" onClick={handleGuidedSearch}>
@@ -159,18 +139,12 @@ const Home = () => {
         </button>
       </div>
 
-      {/* Results Section */}
       <div className="service-results">
         {filteredServices.length > 0 ? (
           filteredServices.map((service, index) => (
             <div key={index} className="service-item">
-              {/* Function Name */}
               <h3>{service.function_name || "Unknown"}</h3>
-
-              {/* Docstring */}
               <p><strong>Description:</strong> {service.docstring}</p>
-
-              {/* View Button */}
               <button
                 className="view-button"
                 onClick={() => window.open(service.url, "_blank")}
@@ -184,7 +158,6 @@ const Home = () => {
         )}
       </div>
 
-      {/* ChatBot */}
       {chatVisible && <ChatBot setChatVisible={setChatVisible} />}
     </div>
   );
