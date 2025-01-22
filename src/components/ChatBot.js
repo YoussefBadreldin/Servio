@@ -6,7 +6,7 @@ import userIcon from "../assets/user-icon.png";
 const ChatBot = ({ setChatVisible }) => {
   const [messages, setMessages] = useState([
     { sender: "bot", text: "Hello! This is Servio, your smart assistant for efficient service discovery." },
-    { sender: "bot", text: "What system are you planning to build?" }
+    { sender: "bot", text: "What are the details of the service you are looking for?" }
   ]);
   const [input, setInput] = useState("");
   const [showButtons, setShowButtons] = useState(false);
@@ -14,6 +14,8 @@ const ChatBot = ({ setChatVisible }) => {
   const [selectedRating, setSelectedRating] = useState(0);
   const [feedback, setFeedback] = useState("");
   const [currentStage, setCurrentStage] = useState(1);
+  const [serviceFound, setServiceFound] = useState(false);
+  const [refinement, setRefinement] = useState("");
 
   const handleSendMessage = () => {
     if (input.trim() === "") return;
@@ -26,17 +28,64 @@ const ChatBot = ({ setChatVisible }) => {
       if (currentStage === 1) {
         setMessages((prevMessages) => [
           ...prevMessages,
-          { sender: "bot", text: `Got it! You're looking to build: "${newMessage.text}".` },
-          { sender: "bot", text: "What specific feature should this service have?" }
+          { sender: "bot", text: `Got it! You're looking for: "${newMessage.text}".` },
+          { sender: "bot", text: "What features do you need in the service?" }
         ]);
         setCurrentStage(2);
       } else if (currentStage === 2) {
         setMessages((prevMessages) => [
           ...prevMessages,
           { sender: "bot", text: `Thank you! Noted: "${newMessage.text}".` },
-          { sender: "bot", text: "Do you need to add any other info?" }
+          { sender: "bot", text: "Searching for services that match your requirements..." }
         ]);
-        setShowButtons(true); // Show buttons for the "any other info" question
+        setTimeout(() => {
+          // Simulate service search
+          const foundServices = true; // Change this to false to simulate no results
+          if (foundServices) {
+            setServiceFound(true);
+            setMessages((prevMessages) => [
+              ...prevMessages,
+              { sender: "bot", text: "Services found! Here are the results:" },
+              { sender: "bot", text: "1. Service A\n2. Service B\n3. Service C" },
+              { sender: "bot", text: "Would you like to refine your search?" }
+            ]);
+            setShowButtons(true); // Show buttons for refinement
+          } else {
+            setMessages((prevMessages) => [
+              ...prevMessages,
+              { sender: "bot", text: "No services found that match your requirements." },
+              { sender: "bot", text: "Please rate your experience & provide feedback." }
+            ]);
+            setNoResults(true); // Show feedback form
+          }
+        }, 1000);
+      } else if (currentStage === 3) {
+        setRefinement(input); // Save refinement input
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { sender: "bot", text: `Refinement added: "${newMessage.text}".` },
+          { sender: "bot", text: "Searching again with your refinement..." }
+        ]);
+        setTimeout(() => {
+          // Simulate refined search
+          const foundRefinedServices = true; // Change this to false to simulate no results
+          if (foundRefinedServices) {
+            setMessages((prevMessages) => [
+              ...prevMessages,
+              { sender: "bot", text: "Refined services found! Here are the results:" },
+              { sender: "bot", text: "1. Refined Service A\n2. Refined Service B" },
+              { sender: "bot", text: "Please rate your experience & provide feedback." }
+            ]);
+            setNoResults(true); // Show feedback form
+          } else {
+            setMessages((prevMessages) => [
+              ...prevMessages,
+              { sender: "bot", text: "No refined services found." },
+              { sender: "bot", text: "Please rate your experience & provide feedback." }
+            ]);
+            setNoResults(true); // Show feedback form
+          }
+        }, 1000);
       }
     }, 500);
   };
@@ -45,23 +94,17 @@ const ChatBot = ({ setChatVisible }) => {
     if (response === "yes") {
       setMessages((prevMessages) => [
         ...prevMessages,
-        { sender: "bot", text: "Please provide the additional info you'd like to add." }
+        { sender: "bot", text: "Please provide the refinement you'd like to add." }
       ]);
       setShowButtons(false); // Hide buttons for direct input
+      setCurrentStage(3); // Move to refinement stage
     } else {
       setMessages((prevMessages) => [
         ...prevMessages,
-        { sender: "bot", text: "Searching for appropriate services..." }
+        { sender: "bot", text: "Please rate your experience & provide feedback." }
       ]);
-      setTimeout(() => {
-        setNoResults(true);
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          { sender: "bot", text: "Services found that match your requirements!" },
-          { sender: "bot", text: "Please rate your experience & provide feedback." }
-        ]);
-        setShowButtons(false);
-      }, 1000);
+      setShowButtons(false); // Hide buttons
+      setNoResults(true); // Show feedback form
     }
   };
 
@@ -70,7 +113,11 @@ const ChatBot = ({ setChatVisible }) => {
   };
 
   const handleRatingSubmit = () => {
-    if (selectedRating && feedback) {
+    // Debugging: Log the selectedRating and feedback values
+    console.log("Selected Rating:", selectedRating);
+    console.log("Feedback:", feedback);
+
+    if (selectedRating > 0 && feedback.trim() !== "") {
       setMessages((prevMessages) => [
         ...prevMessages,
         { sender: "user", text: `Rating: ${selectedRating} stars, Feedback: ${feedback}` },
@@ -79,6 +126,8 @@ const ChatBot = ({ setChatVisible }) => {
       setNoResults(false);
       setSelectedRating(0);
       setFeedback("");
+    } else {
+      alert("Please provide both a rating and feedback before submitting.");
     }
   };
 
