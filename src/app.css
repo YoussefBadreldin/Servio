@@ -1,0 +1,87 @@
+/* App.css */
+.App {
+    text-align: center;
+    font-family: Arial, sans-serif;
+    background: radial-gradient(circle, #642e91 0%, #4849a2 26%, #3958aa 100%);
+    background: -moz-radial-gradient(circle, #642e91 0%, #4849a2 26%, #3958aa 100%);
+    background: -webkit-radial-gradient(circle, #642e91 0%, #4849a2 26%, #3958aa 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 80px; /* Add padding to prevent content from being hidden under the navbar */
+    color: #fff; /* Set text color to white for better contrast */
+  }
+  
+  /* Navbar Styling */
+  .navbar {
+    background-color: white;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000; /* Ensures it stays on top */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add shadow for better visibility */
+  }
+  
+  .navbar-logo a {
+    color: #662d91;
+    font-size: 24px;
+    font-weight: bold;
+    text-decoration: none;
+  }
+  
+  .navbar-links {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+  }
+  
+  .navbar-links li {
+    display: inline;
+  }
+  
+  .navbar-links a {
+    color: #662d91;
+    text-decoration: none;
+    font-size: 18px;
+  }
+  
+  .navbar-links a:hover {
+    text-decoration: underline;
+  }
+  
+  .navbar-logo-image {
+    width: 200px;  /* Adjust to a smaller size */
+    height: auto;  /* Maintain aspect ratio */
+  }
+  
+  /* Main Content Styling */
+  .main-content {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  /* Footer Styling */
+  .footer {
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    color: white;
+    padding: 20px;
+    text-align: center;
+    margin-top: auto; /* Push footer to the bottom */
+    width: 100%;
+  }
+  
+  .footer a {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .footer a:hover {
+    text-decoration: underline;
+  }

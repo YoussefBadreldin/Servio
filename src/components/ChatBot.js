@@ -16,78 +16,120 @@ const ChatBot = ({ setChatVisible }) => {
   const [currentStage, setCurrentStage] = useState(1);
   const [serviceFound, setServiceFound] = useState(false);
   const [refinement, setRefinement] = useState("");
+  const [serviceType, setServiceType] = useState("");
+  const [features, setFeatures] = useState("");
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (input.trim() === "") return;
 
     const newMessage = { sender: "user", text: input };
     setMessages((prevMessages) => [...prevMessages, newMessage]);
     setInput(""); // Reset input
 
-    setTimeout(() => {
-      if (currentStage === 1) {
+    if (currentStage === 1) {
+      setServiceType(input); // Save service type
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { sender: "bot", text: `Got it! You're looking for: "${newMessage.text}".` },
+        { sender: "bot", text: "What features do you need in the service?" }
+      ]);
+      setCurrentStage(2);
+    } else if (currentStage === 2) {
+      setFeatures(input); // Save features
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { sender: "bot", text: `Thank you! Noted: "${newMessage.text}".` },
+        { sender: "bot", text: "Searching for services that match your requirements..." }
+      ]);
+
+      // Send request to backend
+      try {
+        const response = await fetch("http://localhost:8000/search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            search_type: "guide",
+            guide_request: {
+              service_type: serviceType,
+              features: input, // Use the latest input for features
+              refinement: "", // Refinement will be added later
+            },
+          }),
+        });
+
+        const data = await response.json();
+        if (data.results && data.results.length > 0) {
+          setServiceFound(true);
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            { sender: "bot", text: "Services found! Here are the results:" },
+            { sender: "bot", text: data.results.map((service, index) => `${index + 1}. ${service.function_name}`).join("\n") },
+            { sender: "bot", text: "Would you like to refine your search?" }
+          ]);
+          setShowButtons(true); // Show buttons for refinement
+        } else {
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            { sender: "bot", text: "No services found that match your requirements." },
+            { sender: "bot", text: "Please rate your experience & provide feedback." }
+          ]);
+          setNoResults(true); // Show feedback form
+        }
+      } catch (error) {
+        console.error("Error during search:", error);
         setMessages((prevMessages) => [
           ...prevMessages,
-          { sender: "bot", text: `Got it! You're looking for: "${newMessage.text}".` },
-          { sender: "bot", text: "What features do you need in the service?" }
+          { sender: "bot", text: "An error occurred while searching. Please try again." }
         ]);
-        setCurrentStage(2);
-      } else if (currentStage === 2) {
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          { sender: "bot", text: `Thank you! Noted: "${newMessage.text}".` },
-          { sender: "bot", text: "Searching for services that match your requirements..." }
-        ]);
-        setTimeout(() => {
-          // Simulate service search
-          const foundServices = true; // Change this to false to simulate no results
-          if (foundServices) {
-            setServiceFound(true);
-            setMessages((prevMessages) => [
-              ...prevMessages,
-              { sender: "bot", text: "Services found! Here are the results:" },
-              { sender: "bot", text: "1. Service A\n2. Service B\n3. Service C" },
-              { sender: "bot", text: "Would you like to refine your search?" }
-            ]);
-            setShowButtons(true); // Show buttons for refinement
-          } else {
-            setMessages((prevMessages) => [
-              ...prevMessages,
-              { sender: "bot", text: "No services found that match your requirements." },
-              { sender: "bot", text: "Please rate your experience & provide feedback." }
-            ]);
-            setNoResults(true); // Show feedback form
-          }
-        }, 1000);
-      } else if (currentStage === 3) {
-        setRefinement(input); // Save refinement input
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          { sender: "bot", text: `Refinement added: "${newMessage.text}".` },
-          { sender: "bot", text: "Searching again with your refinement..." }
-        ]);
-        setTimeout(() => {
-          // Simulate refined search
-          const foundRefinedServices = true; // Change this to false to simulate no results
-          if (foundRefinedServices) {
-            setMessages((prevMessages) => [
-              ...prevMessages,
-              { sender: "bot", text: "Refined services found! Here are the results:" },
-              { sender: "bot", text: "1. Refined Service A\n2. Refined Service B" },
-              { sender: "bot", text: "Please rate your experience & provide feedback." }
-            ]);
-            setNoResults(true); // Show feedback form
-          } else {
-            setMessages((prevMessages) => [
-              ...prevMessages,
-              { sender: "bot", text: "No refined services found." },
-              { sender: "bot", text: "Please rate your experience & provide feedback." }
-            ]);
-            setNoResults(true); // Show feedback form
-          }
-        }, 1000);
       }
-    }, 500);
+    } else if (currentStage === 3) {
+      setRefinement(input); // Save refinement input
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { sender: "bot", text: `Refinement added: "${newMessage.text}".` },
+        { sender: "bot", text: "Searching again with your refinement..." }
+      ]);
+
+      // Send refined request to backend
+      try {
+        const response = await fetch("http://localhost:8000/search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            search_type: "guide",
+            guide_request: {
+              service_type: serviceType,
+              features: features,
+              refinement: input, // Use the latest input for refinement
+            },
+          }),
+        });
+
+        const data = await response.json();
+        if (data.results && data.results.length > 0) {
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            { sender: "bot", text: "Refined services found! Here are the results:" },
+            { sender: "bot", text: data.results.map((service, index) => `${index + 1}. ${service.function_name}`).join("\n") },
+            { sender: "bot", text: "Please rate your experience & provide feedback." }
+          ]);
+          setNoResults(true); // Show feedback form
+        } else {
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            { sender: "bot", text: "No refined services found." },
+            { sender: "bot", text: "Please rate your experience & provide feedback." }
+          ]);
+          setNoResults(true); // Show feedback form
+        }
+      } catch (error) {
+        console.error("Error during refined search:", error);
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { sender: "bot", text: "An error occurred while refining the search. Please try again." }
+        ]);
+      }
+    }
   };
 
   const handleButtonClick = (response) => {
@@ -113,10 +155,6 @@ const ChatBot = ({ setChatVisible }) => {
   };
 
   const handleRatingSubmit = () => {
-    // Debugging: Log the selectedRating and feedback values
-    console.log("Selected Rating:", selectedRating);
-    console.log("Feedback:", feedback);
-
     if (selectedRating > 0 && feedback.trim() !== "") {
       setMessages((prevMessages) => [
         ...prevMessages,

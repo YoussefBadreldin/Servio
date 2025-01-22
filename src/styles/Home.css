@@ -1,21 +1,10 @@
-/* Body Styling */
+/* Service Discovery Container */
 body {
-  margin: 0;
-  padding: 0;
-  font-family: Arial, sans-serif;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   background: radial-gradient(circle, #642e91 0%, #4849a2 26%, #3958aa 100%);
   background: -moz-radial-gradient(circle, #642e91 0%, #4849a2 26%, #3958aa 100%);
   background: -webkit-radial-gradient(circle, #642e91 0%, #4849a2 26%, #3958aa 100%);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#642e91", endColorstr="#3958aa", GradientType=1);
-  color: rgb(0, 0, 0);
-  text-align: center;
 }
 
-/* Service Discovery Container */
 .service-discovery-container {
   display: flex;
   flex-direction: column;
@@ -26,7 +15,8 @@ body {
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   background-color: #ffffff;
-  margin: 20px; /* Adds space around the container */
+  margin: 20px auto; /* Centers the container and adds space around it */
+  padding-top: 100px; /* Adds padding to prevent overlap with the navbar */
 }
 
 /* Heading */

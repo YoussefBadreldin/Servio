@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import './app.css'; 
 
 import Home from "./pages/Home";
 import SignIn from "./pages/SignIn";
