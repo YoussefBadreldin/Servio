@@ -51,20 +51,15 @@ const Home = () => {
       }
 
       const response = await fetch("http://localhost:8000/search", {
-        method: "POST", // Ensure POST method
+        method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestBody), // Send data in the body
+        body: JSON.stringify(requestBody),
       });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
 
       const data = await response.json();
       setFilteredServices(data.results);
     } catch (error) {
       console.error("Error during search:", error);
-      alert("An error occurred during the search. Please try again.");
     } finally {
       setIsLoading(false);
     }
