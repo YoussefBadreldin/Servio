@@ -12,15 +12,34 @@ const Home = () => {
   const [filteredServices, setFilteredServices] = useState([]);
   const [chatVisible, setChatVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
-  const isSearchDisabled =
-    !searchParams.programmingLanguage ||
-    !searchParams.topN ||
-    (!searchParams.query && !searchParams.aspects);
+  const [errorMessage, setErrorMessage] = useState(""); // State for error message
+  const [showPopup, setShowPopup] = useState(false); // State to control popup visibility
 
   const handleSearch = async () => {
-    if (isSearchDisabled) return;
+    // Check which fields are missing
+    const missingFields = [];
+    if (!searchParams.programmingLanguage) missingFields.push("programming language");
+    if (!searchParams.topN) missingFields.push("number of top results");
+    if (!searchParams.query && !searchParams.aspects) missingFields.push("query or aspects");
 
+    // If any fields are missing, show a custom error message
+    if (missingFields.length > 0) {
+      let message = "Please: ";
+      if (missingFields.includes("programming language")) {
+        message += "select a programming language, ";
+      }
+      if (missingFields.includes("number of top results")) {
+        message += "select the number of top results, ";
+      }
+      if (missingFields.includes("query or aspects")) {
+        message += "enter either a query for semantic search or aspects for syntactic search.";
+      }
+      setErrorMessage(message);
+      setShowPopup(true);
+      return; // Stop further execution
+    }
+
+    // If all required fields are provided, proceed with the search
     setIsLoading(true);
     try {
       let requestBody = {};
@@ -45,9 +64,6 @@ const Home = () => {
             top_n: parseInt(searchParams.topN),
           },
         };
-      } else {
-        alert("Please enter either a query for semantic search or aspects for syntactic search.");
-        return;
       }
 
       const response = await fetch("http://localhost:8000/search", {
@@ -60,6 +76,8 @@ const Home = () => {
       setFilteredServices(data.results);
     } catch (error) {
       console.error("Error during search:", error);
+      setErrorMessage("An error occurred during the search. Please try again.");
+      setShowPopup(true);
     } finally {
       setIsLoading(false);
     }
@@ -68,9 +86,24 @@ const Home = () => {
   const handleGuidedSearch = () => setChatVisible(true);
   const toggleChat = () => setChatVisible((prev) => !prev);
 
+  const closePopup = () => {
+    setShowPopup(false); // Close the popup
+    setErrorMessage(""); // Clear the error message
+  };
+
   return (
     <div className="service-discovery-container">
       <h2>SERVIO Smart Service Discovery</h2>
+
+      {/* Error Popup */}
+      {showPopup && (
+        <div className="error-popup">
+          <div className="error-popup-content">
+            <p>{errorMessage}</p>
+            <button onClick={closePopup}>Close</button>
+          </div>
+        </div>
+      )}
 
       <div className="search-bar-container">
         <div className="input-row">
@@ -78,20 +111,19 @@ const Home = () => {
             type="text"
             value={searchParams.query}
             onChange={(e) => setSearchParams({ ...searchParams, query: e.target.value })}
-            placeholder="Query (e.g., Translate English to Arabic)"
+            placeholder="Query"
             className="search-input"
           />
           <input
             type="text"
             value={searchParams.aspects}
             onChange={(e) => setSearchParams({ ...searchParams, aspects: e.target.value })}
-            placeholder="Aspects (e.g., salt_key)"
+            placeholder="Aspects"
             className="search-input"
           />
         </div>
 
         <div className="input-row">
-          <label htmlFor="programming-language">Programming Language</label>
           <select
             id="programming-language"
             value={searchParams.programmingLanguage}
@@ -104,14 +136,13 @@ const Home = () => {
             <option value="JavaScript">JavaScript</option>
           </select>
 
-          <label htmlFor="top-n">Top N</label>
           <select
             id="top-n"
             value={searchParams.topN}
             onChange={(e) => setSearchParams({ ...searchParams, topN: e.target.value })}
             required
           >
-            <option value="">Select Top N</option>
+            <option value="">Select Number of top results</option>
             {[...Array(10).keys()].map((i) => (
               <option key={i + 1} value={i + 1}>
                 {i + 1}
@@ -121,7 +152,7 @@ const Home = () => {
         </div>
 
         <div className="input-row center">
-          <button className="search-button" onClick={handleSearch} disabled={isSearchDisabled || isLoading}>
+          <button className="search-button" onClick={handleSearch} disabled={isLoading}>
             {isLoading ? "Searching..." : "Search"}
           </button>
         </div>
