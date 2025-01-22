@@ -1,43 +1,48 @@
 import React, { useState } from "react";
-import "../styles/Home.css"; // Use the same styles as ServiceDiscovery
-import ChatBot from "../components/ChatBot.js"; // Ensure ChatBot is imported
+import "../styles/Home.css";
+import ChatBot from "../components/ChatBot.js";
 
 const Home = () => {
-  const [query, setQuery] = useState("");
-  const [aspects, setAspects] = useState("");
-  const [programmingLanguage, setProgrammingLanguage] = useState("");
-  const [topN, setTopN] = useState("");
+  const [searchParams, setSearchParams] = useState({
+    query: "",
+    aspects: "",
+    programmingLanguage: "",
+    topN: "",
+  });
   const [filteredServices, setFilteredServices] = useState([]);
-  const [chatVisible, setChatVisible] = useState(false); // State to toggle chatbot visibility
+  const [chatVisible, setChatVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const isSearchDisabled =
+    !searchParams.programmingLanguage ||
+    !searchParams.topN ||
+    (!searchParams.query && !searchParams.aspects);
 
   const handleSearch = async () => {
-    // Validate mandatory fields
-    if (!programmingLanguage || !topN) {
-      alert("Please select a Programming Language and Top N.");
-      return;
-    }
+    if (isSearchDisabled) return;
 
+    setIsLoading(true);
     try {
       let requestBody = {};
 
-      if (query && !aspects) {
-        // Semantic search (query only)
+      if (searchParams.query) {
+        // Semantic search
         requestBody = {
           search_type: "semantic",
           semantic_request: {
-            query: query,
-            aspects: ["docstring"], // Predefined aspects
-            top_n: parseInt(topN), // Convert to integer
+            query: searchParams.query,
+            aspects: ["python"], // Predefined
+            top_n: parseInt(searchParams.topN),
           },
         };
-      } else if (aspects && !query) {
-        // Syntactic search (aspects only)
+      } else if (searchParams.aspects) {
+        // Syntactic search
         requestBody = {
           search_type: "syntactic",
           syntactic_request: {
-            query: aspects,
-            field: "func_name", // Predefined field
-            top_n: parseInt(topN), // Convert to integer
+            query: "salt_key", // Predefined
+            field: searchParams.aspects, // User-provided aspects
+            top_n: parseInt(searchParams.topN),
           },
         };
       } else {
@@ -47,86 +52,77 @@ const Home = () => {
 
       const response = await fetch("http://localhost:8000/search", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody),
       });
 
       const data = await response.json();
-      setFilteredServices(data.results); // Set the results from the API
+      setFilteredServices(data.results);
     } catch (error) {
       console.error("Error during search:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleGuidedSearch = () => {
-    // Open the chatbot for guided search
-    setChatVisible(true);
-  };
-
-  const toggleChat = () => {
-    setChatVisible((prev) => !prev); // Toggle chatbot visibility
-  };
+  const handleGuidedSearch = () => setChatVisible(true);
+  const toggleChat = () => setChatVisible((prev) => !prev);
 
   return (
     <div className="service-discovery-container">
       <h2>SERVIO Smart Service Discovery</h2>
 
       <div className="search-bar-container">
-        {/* First Line: Query and Aspects */}
         <div className="input-row">
           <input
             type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            value={searchParams.query}
+            onChange={(e) => setSearchParams({ ...searchParams, query: e.target.value })}
             placeholder="Query (e.g., Translate English to Arabic)"
             className="search-input"
           />
           <input
             type="text"
-            value={aspects}
-            onChange={(e) => setAspects(e.target.value)}
+            value={searchParams.aspects}
+            onChange={(e) => setSearchParams({ ...searchParams, aspects: e.target.value })}
             placeholder="Aspects (e.g., salt_key)"
             className="search-input"
           />
         </div>
 
-        {/* Second Line: Programming Language and Top N */}
         <div className="input-row">
-          <label>
-            <select
-              value={programmingLanguage}
-              onChange={(e) => setProgrammingLanguage(e.target.value)}
-              required
-            >
-              <option value="">Select Programming Language</option>
-              <option value="Python">Python</option>
-              <option value="Java">Java</option>
-              <option value="JavaScript">JavaScript</option>
-            </select>
-          </label>
+          <label htmlFor="programming-language">Programming Language</label>
+          <select
+            id="programming-language"
+            value={searchParams.programmingLanguage}
+            onChange={(e) => setSearchParams({ ...searchParams, programmingLanguage: e.target.value })}
+            required
+          >
+            <option value="">Select Programming Language</option>
+            <option value="Python">Python</option>
+            <option value="Java">Java</option>
+            <option value="JavaScript">JavaScript</option>
+          </select>
 
-          <label>
-            <select
-              value={topN}
-              onChange={(e) => setTopN(e.target.value)}
-              required
-            >
-              <option value="">Select Top N</option>
-              {[...Array(10).keys()].map((i) => (
-                <option key={i + 1} value={i + 1}>
-                  {i + 1}
-                </option>
-              ))}
-            </select>
-          </label>
+          <label htmlFor="top-n">Top N</label>
+          <select
+            id="top-n"
+            value={searchParams.topN}
+            onChange={(e) => setSearchParams({ ...searchParams, topN: e.target.value })}
+            required
+          >
+            <option value="">Select Top N</option>
+            {[...Array(10).keys()].map((i) => (
+              <option key={i + 1} value={i + 1}>
+                {i + 1}
+              </option>
+            ))}
+          </select>
         </div>
 
-        {/* Third Line: Centered Search Button */}
         <div className="input-row center">
-          <button className="search-button" onClick={handleSearch}>
-            Search
+          <button className="search-button" onClick={handleSearch} disabled={isSearchDisabled || isLoading}>
+            {isLoading ? "Searching..." : "Search"}
           </button>
         </div>
       </div>
