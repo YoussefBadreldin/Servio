@@ -1,3 +1,4 @@
+// src/components/ChatBot.js
 import React, { useState } from "react";
 import "../styles/ChatBot.css";
 import botIcon from "../assets/bot-icon.png";
