@@ -13,83 +13,56 @@ const Home = () => {
   const [filteredServices, setFilteredServices] = useState([]);
   const [chatVisible, setChatVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(""); // State for error message
-  const [showPopup, setShowPopup] = useState(false); // State to control popup visibility
+  const [errorMessage, setErrorMessage] = useState("");
+  const [showPopup, setShowPopup] = useState(false);
 
   const handleSearch = async () => {
-    // Clear previous search results and error messages
     setFilteredServices([]);
     setErrorMessage("");
     setShowPopup(false);
 
-    // Check if both query and aspects are provided
     if (searchParams.query && searchParams.aspects) {
       setErrorMessage("Please enter either a query for semantic search or aspects for syntactic search, not both.");
       setShowPopup(true);
-      return; // Stop further execution
+      return;
     }
 
-    // Check which fields are missing
     const missingFields = [];
     if (!searchParams.programmingLanguage) missingFields.push("programming language");
     if (!searchParams.topN) missingFields.push("number of top results");
     if (!searchParams.query && !searchParams.aspects) missingFields.push("query or aspects");
 
-    // If any fields are missing, show a custom error message
     if (missingFields.length > 0) {
-      let message = "Please: ";
-      if (missingFields.includes("programming language")) {
-        message += "select a programming language, ";
-      }
-      if (missingFields.includes("number of top results")) {
-        message += "select the number of top results, ";
-      }
-      if (missingFields.includes("query or aspects")) {
-        message += "enter either a query for semantic search or aspects for syntactic search.";
-      }
-      setErrorMessage(message);
+      setErrorMessage(`Please provide: ${missingFields.join(", ")}.`);
       setShowPopup(true);
-      return; // Stop further execution
+      return;
     }
 
-    // If all required fields are provided, proceed with the search
     setIsLoading(true);
     try {
-      let requestBody = {};
-
-      if (searchParams.query) {
-        // Semantic search
-        requestBody = {
-          search_type: "semantic",
-          semantic_request: {
-            query: searchParams.query,
-            aspects: ["python"], // Predefined
-            top_n: parseInt(searchParams.topN),
-          },
-        };
-      } else if (searchParams.aspects) {
-        // Syntactic search
-        requestBody = {
-          search_type: "syntactic",
-          syntactic_request: {
-            query: searchParams.aspects, // Use user-provided aspects as the query
-            field: "func_name", // Predefined field
-            top_n: parseInt(searchParams.topN),
-          },
-        };
-      }
-
-      // Log the request body for debugging
-      console.log("Request Body:", JSON.stringify(requestBody, null, 2));
+      const requestBody = searchParams.query
+        ? {
+            search_type: "semantic",
+            semantic_request: {
+              query: searchParams.query,
+              aspects: [searchParams.programmingLanguage.toLowerCase()],
+              top_n: parseInt(searchParams.topN),
+            },
+          }
+        : {
+            search_type: "syntactic",
+            syntactic_request: {
+              query: searchParams.aspects,
+              field: "func_name",
+              top_n: parseInt(searchParams.topN),
+            },
+          };
 
       const response = await fetch("http://localhost:8000/search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody),
       });
-
-      // Log the response status for debugging
-      console.log("Response Status:", response.status);
 
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -107,18 +80,15 @@ const Home = () => {
   };
 
   const handleGuidedSearch = () => setChatVisible(true);
-  const toggleChat = () => setChatVisible((prev) => !prev);
-
   const closePopup = () => {
-    setShowPopup(false); // Close the popup
-    setErrorMessage(""); // Clear the error message
+    setShowPopup(false);
+    setErrorMessage("");
   };
 
   return (
     <div className="service-discovery-container">
       <h2>SERVIO Smart Service Discovery</h2>
 
-      {/* Error Popup */}
       {showPopup && (
         <div className="error-popup">
           <div className="error-popup-content">
@@ -207,7 +177,7 @@ const Home = () => {
         )}
       </div>
 
-      {chatVisible && <ChatBot setChatVisible={setChatVisible} />}
+      {chatVisible && <ChatBot setChatVisible={setChatVisible} setFilteredServices={setFilteredServices} />}
     </div>
   );
 };
