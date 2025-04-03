@@ -1,4 +1,3 @@
-// src/components/ChatBot.js
 import React, { useState } from "react";
 import "../styles/ChatBot.css";
 import botIcon from "../assets/bot-icon.png";
@@ -16,7 +15,8 @@ const ChatBot = ({ setChatVisible, setFilteredServices }) => {
   const [currentStage, setCurrentStage] = useState(1);
   const [serviceType, setServiceType] = useState("");
   const [features, setFeatures] = useState("");
-  const [refinement, setRefinement] = useState("");
+  const [refinements, setRefinements] = useState([]);
+  const [isRefining, setIsRefining] = useState(false);
 
   const handleSendMessage = async () => {
     if (input.trim() === "") return;
@@ -37,7 +37,7 @@ const ChatBot = ({ setChatVisible, setFilteredServices }) => {
         setFeatures(input);
         setMessages((prevMessages) => [
           ...prevMessages,
-          { sender: "bot", text: "Searching for service that match your requirements..." }
+          { sender: "bot", text: "Searching for services that match your requirements..." }
         ]);
 
         const requestBody = {
@@ -70,9 +70,10 @@ const ChatBot = ({ setChatVisible, setFilteredServices }) => {
           if (data.results.length > 0) {
             setMessages((prevMessages) => [
               ...prevMessages,
-              { sender: "bot", text: "Service found! Here is the result, Would you like to refine your search?" },
+              { sender: "bot", text: "Service found! Would you like to refine your search?" }
             ]);
             setShowButtons(true);
+            setIsRefining(true);
           } else {
             setMessages((prevMessages) => [
               ...prevMessages,
@@ -89,7 +90,7 @@ const ChatBot = ({ setChatVisible, setFilteredServices }) => {
           ]);
         }
       } else if (currentStage === 3) {
-        setRefinement(input);
+        setRefinements((prevRefinements) => [...prevRefinements, input]);
         setMessages((prevMessages) => [
           ...prevMessages,
           { sender: "bot", text: "Searching again with your refinement..." }
@@ -100,7 +101,7 @@ const ChatBot = ({ setChatVisible, setFilteredServices }) => {
           guide_request: {
             service_type: serviceType,
             features: features,
-            refinement: input,
+            refinement: refinements.join(", "), // Join multiple refinements
           },
         };
 
@@ -126,16 +127,16 @@ const ChatBot = ({ setChatVisible, setFilteredServices }) => {
             setMessages((prevMessages) => [
               ...prevMessages,
               { sender: "bot", text: "Refined service found! Here is the result." },
-              { sender: "bot", text: "Please rate your experience & provide feedback." }
+              { sender: "bot", text: "Would you like to refine further?" }
             ]);
-            setNoResults(true);
+            setShowButtons(true);
           } else {
             setMessages((prevMessages) => [
               ...prevMessages,
               { sender: "bot", text: "No refined service found." },
-              { sender: "bot", text: "Please rate your experience & provide feedback." }
+              { sender: "bot", text: "Would you like to try refining further or rate your experience?" }
             ]);
-            setNoResults(true);
+            setShowButtons(true);
           }
         } catch (error) {
           console.error("Error during refined search:", error);
@@ -152,10 +153,10 @@ const ChatBot = ({ setChatVisible, setFilteredServices }) => {
     if (response === "yes") {
       setMessages((prevMessages) => [
         ...prevMessages,
-        { sender: "bot", text: "Please provide the refinement you'd like to add." }
+        { sender: "bot", text: "Please provide the next refinement you'd like to add." }
       ]);
       setShowButtons(false);
-      setCurrentStage(3);
+      setCurrentStage(3); // Allow further refinements
     } else {
       setMessages((prevMessages) => [
         ...prevMessages,
@@ -163,6 +164,7 @@ const ChatBot = ({ setChatVisible, setFilteredServices }) => {
       ]);
       setShowButtons(false);
       setNoResults(true);
+      setIsRefining(false); // End refinement process
     }
   };
 
