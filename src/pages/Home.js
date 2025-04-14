@@ -1,4 +1,3 @@
-// src/pages/Home.js
 import React, { useState } from "react";
 import "../styles/Home.css";
 
@@ -10,46 +9,90 @@ const Home = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [showPopup, setShowPopup] = useState(false);
   const [file, setFile] = useState(null);
-  const [activeModule, setActiveModule] = useState(null); // 'direct', 'guided', or null (initial state)
-  const [showWelcome, setShowWelcome] = useState(true); // Controls visibility of the welcome screen
-  const [showModuleChoice, setShowModuleChoice] = useState(false); // Controls visibility of module choice
-
-  // Guided Module States
+  const [activeModule, setActiveModule] = useState(null);
+  const [showWelcome, setShowWelcome] = useState(true);
+  const [showModuleChoice, setShowModuleChoice] = useState(false);
   const [showButtons, setShowButtons] = useState(false);
   const [noResults, setNoResults] = useState(false);
   const [selectedRating, setSelectedRating] = useState(0);
   const [feedback, setFeedback] = useState("");
   const [currentStage, setCurrentStage] = useState(1);
-  const [serviceType, setServiceType] = useState("");
-  const [features, setFeatures] = useState("");
-  const [refinements, setRefinements] = useState([]);
-  const [isRefining, setIsRefining] = useState(false);
+  const [expandedDescriptions, setExpandedDescriptions] = useState({});
+
+  const toggleDescription = (index) => {
+    setExpandedDescriptions(prev => ({
+      ...prev,
+      [index]: !prev[index]
+    }));
+  };
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() && !file) return;
-
+  
     const userMessage = { text: inputValue, sender: "user", file: file ? file.name : null };
     setMessages((prevMessages) => [...prevMessages, userMessage]);
     setInputValue("");
     setFile(null);
-
+  
     setIsLoading(true);
     setErrorMessage("");
-
+  
     try {
       if (activeModule === "direct") {
-        // Direct Module Logic (unchanged)
-        const formData = new FormData();
-        if (file) {
-          formData.append("file", file);
-        }
-        if (inputValue.trim()) {
-          formData.append("query", inputValue);
-        }
-
-        const response = await fetch("http://localhost:8000/direct-search", {
+        // Direct Discovery Module with predefined XML path
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { sender: "bot", text: `Searching for services matching: "${inputValue}"` }
+        ]);
+  
+        // Predefined XML path - adjust this to your actual path
+        const xmlPath = "data/xml_aspects/9c2358ac-1c2a-42b8-a464-386fdf0f8416.xml";
+        
+        const response = await fetch("http://localhost:8000/api/direct/discover", {
           method: "POST",
-          body: formData,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            query: inputValue.trim(),
+            xml_path: xmlPath
+          })
+        });
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+  
+        const data = await response.json();
+        
+        // Format results for display
+        const formattedResults = data.matches.map(service => ({
+          function_name: service.func_name,
+          docstring: service.docstring,
+          url: service.url,
+          confidence: service.similarity_score
+        }));
+  
+        setFilteredServices(formattedResults);
+  
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { 
+            sender: "bot", 
+            text: `Found ${formattedResults.length} matching services sorted by similarity score:`
+          }
+        ]);
+
+      } else if (activeModule === "guided") {
+        // Guided Discovery Module
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { sender: "bot", text: `User query: "${inputValue}"` },
+          { sender: "bot", text: "Starting discovery process..." }
+        ]);
+
+        const response = await fetch("http://localhost:8000/api/guided/recommend", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: inputValue })
         });
 
         if (!response.ok) {
@@ -57,112 +100,29 @@ const Home = () => {
         }
 
         const data = await response.json();
-        setFilteredServices(data.results);
+        
+        const formattedResults = data.recommendations.map(service => ({
+          function_name: service.service_name,
+          docstring: service.description,
+          url: service.url,
+          confidence: service.confidence
+        }));
 
-        const botMessage = { text: "Here are the results I found:", sender: "bot" };
-        setMessages((prevMessages) => [...prevMessages, botMessage]);
+        setFilteredServices(formattedResults);
 
-        // Ask if the user needs enhancements using the Guided Module
-        const enhancementMessage = { text: "Do you need further enhancements using the Guided Module?", sender: "bot" };
-        setMessages((prevMessages) => [...prevMessages, enhancementMessage]);
-      } else if (activeModule === "guided") {
-        // Guided Module Logic
-        if (currentStage === 1) {
-          setServiceType(inputValue);
-          setMessages((prevMessages) => [
-            ...prevMessages,
-            { sender: "bot", text: "What features do you need in the service?" }
-          ]);
-          setCurrentStage(2);
-        } else if (currentStage === 2) {
-          setFeatures(inputValue);
-          setMessages((prevMessages) => [
-            ...prevMessages,
-            { sender: "bot", text: "Searching for services that match your requirements..." }
-          ]);
-
-          const requestBody = {
-            search_type: "guide",
-            guide_request: {
-              service_type: serviceType,
-              features: inputValue,
-              refinement: "",
-            },
-          };
-
-          const response = await fetch("http://localhost:8000/search", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(requestBody),
-          });
-
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { 
+            sender: "bot", 
+            text: `Based on your query, here are the top ${formattedResults.length} service recommendations from the registry:`
           }
+        ]);
 
-          const data = await response.json();
-          setFilteredServices(data.results);
-
-          if (data.results.length > 0) {
-            setMessages((prevMessages) => [
-              ...prevMessages,
-              { sender: "bot", text: "Service found! Would you like to refine your search?" }
-            ]);
-            setShowButtons(true);
-            setIsRefining(true);
-          } else {
-            setMessages((prevMessages) => [
-              ...prevMessages,
-              { sender: "bot", text: "No service found that match your requirements." },
-              { sender: "bot", text: "Please rate your experience & provide feedback." }
-            ]);
-            setNoResults(true);
-          }
-        } else if (currentStage === 3) {
-          setRefinements((prevRefinements) => [...prevRefinements, inputValue]);
-          setMessages((prevMessages) => [
-            ...prevMessages,
-            { sender: "bot", text: "Searching again with your refinement..." }
-          ]);
-
-          const requestBody = {
-            search_type: "guide",
-            guide_request: {
-              service_type: serviceType,
-              features: features,
-              refinement: refinements.join(", "),
-            },
-          };
-
-          const response = await fetch("http://localhost:8000/search", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(requestBody),
-          });
-
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-
-          const data = await response.json();
-          setFilteredServices(data.results);
-
-          if (data.results.length > 0) {
-            setMessages((prevMessages) => [
-              ...prevMessages,
-              { sender: "bot", text: "Refined service found! Here is the result." },
-              { sender: "bot", text: "Would you like to refine further?" }
-            ]);
-            setShowButtons(true);
-          } else {
-            setMessages((prevMessages) => [
-              ...prevMessages,
-              { sender: "bot", text: "No refined service found." },
-              { sender: "bot", text: "Would you like to try refining further or rate your experience?" }
-            ]);
-            setShowButtons(true);
-          }
-        }
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { sender: "bot", text: "Would you like to refine your search?" }
+        ]);
+        setShowButtons(true);
       }
     } catch (error) {
       console.error("Error during search:", error);
@@ -193,13 +153,21 @@ const Home = () => {
   const handleModuleSelect = (module) => {
     setActiveModule(module);
     setShowModuleChoice(false);
-    setMessages([{ text: module === "direct" ? "Please enter your aspects or upload an aspects file." : "Hello! This is Servio AI Assistant, your smart assistant for efficient service discovery. What are the details of the service you are looking for?", sender: "bot" }]);
+    setMessages([{ 
+      text: module === "direct" 
+        ? "Please enter your query or upload an XML file to search for services." 
+        : "Hello! This is Servio AI Assistant. What type of service are you looking for?", 
+      sender: "bot" 
+    }]);
   };
 
   const handleBack = () => {
     if (activeModule) {
       setActiveModule(null);
       setShowModuleChoice(true);
+      setMessages([]);
+      setFilteredServices([]);
+      setExpandedDescriptions({});
     } else if (showModuleChoice) {
       setShowModuleChoice(false);
       setShowWelcome(true);
@@ -210,10 +178,9 @@ const Home = () => {
     if (response === "yes") {
       setMessages((prevMessages) => [
         ...prevMessages,
-        { sender: "bot", text: "Please provide the next refinement you'd like to add." }
+        { sender: "bot", text: "Please provide additional details to refine your search." }
       ]);
       setShowButtons(false);
-      setCurrentStage(3); // Allow further refinements
     } else {
       setMessages((prevMessages) => [
         ...prevMessages,
@@ -221,7 +188,6 @@ const Home = () => {
       ]);
       setShowButtons(false);
       setNoResults(true);
-      setIsRefining(false); // End refinement process
     }
   };
 
@@ -255,10 +221,9 @@ const Home = () => {
           </p>
           <div className="module-intro">
             <h3>Direct Service Discovery</h3>
-            <p>Use written aspects or upload files to conduct precise searches.</p>
+            <p>Use written queries or upload XML files to conduct precise searches.</p>
             <h3>Guided Service Discovery</h3>
-            <p>Interact with a chatbot to refine your queries and get contextually relevant results using RAG techniques.</p>
-            <p>Note: It can also be used to enhance results obtained from the Direct Service Discovery module.</p>
+            <p>Interact with a chatbot to refine your queries and get contextually relevant results.</p>
           </div>
           <button className="start-now-button" onClick={handleStartNow}>
             Start Now
@@ -321,8 +286,8 @@ const Home = () => {
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder={
                   activeModule === "direct"
-                    ? "Enter aspects or upload a file..."
-                    : "Describe your requirements..."
+                    ? "Enter your query or upload XML file..."
+                    : "Describe the service you're looking for..."
                 }
                 onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
               />
@@ -331,6 +296,7 @@ const Home = () => {
                 <input
                   id="file-upload"
                   type="file"
+                  accept={activeModule === "direct" ? ".xml" : "*"}
                   onChange={handleFileChange}
                   style={{ display: "none" }}
                 />
@@ -373,20 +339,46 @@ const Home = () => {
 
           <div className="service-results">
             {filteredServices.length > 0 ? (
-              filteredServices.map((service, index) => (
-                <div key={index} className="service-item">
-                  <h3>{service.function_name || "Unknown"}</h3>
-                  <p><strong>Description:</strong> {service.docstring}</p>
-                  <button
-                    className="view-button"
-                    onClick={() => window.open(service.url, "_blank")}
-                  >
-                    View
-                  </button>
-                </div>
-              ))
+              <div className="services-container">
+                <h3>Service Results</h3>
+                {filteredServices
+                  .sort((a, b) => b.confidence - a.confidence)
+                  .map((service, index) => (
+                    <div key={index} className="service-card">
+                      <div className="service-header">
+                        <h4 className="service-name">{service.function_name}</h4>
+                        <span className="confidence-badge">
+                          Score: {service.confidence.toFixed(1)}
+                        </span>
+                      </div>
+                      <div className="service-description">
+                        <p>
+                          {expandedDescriptions[index] 
+                            ? service.docstring
+                            : service.docstring.split('\n')[0]}
+                          {service.docstring.split('\n').length > 1 && (
+                            <span 
+                              className="see-more" 
+                              onClick={() => toggleDescription(index)}
+                            >
+                              {expandedDescriptions[index] ? ' [see less]' : '... [see more]'}
+                            </span>
+                          )}
+                        </p>
+                      </div>
+                      <div className="service-actions">
+                        <button
+                          className="view-button"
+                          onClick={() => window.open(service.url, "_blank")}
+                        >
+                          View Source
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+              </div>
             ) : (
-              <p>No services found.</p>
+              !isLoading && <p>No services found. Try adjusting your search criteria.</p>
             )}
           </div>
         </>

@@ -433,3 +433,68 @@ h2 {
 .submit-feedback-button:hover {
   background-color: #218838;
 }
+
+/* Service Results Styling */
+.services-container {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.service-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.service-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.service-name {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.2rem;
+}
+
+.confidence-badge {
+  background: #3498db;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+}
+
+.service-description {
+  margin-bottom: 12px;
+  color: #34495e;
+  line-height: 1.5;
+}
+
+.see-more {
+  color: #3498db;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.service-actions {
+  text-align: right;
+}
+
+.view-button {
+  background: #2ecc71;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.view-button:hover {
+  background: #27ae60;
+}
