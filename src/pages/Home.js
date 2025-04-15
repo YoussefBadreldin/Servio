@@ -29,7 +29,7 @@ const Home = () => {
     currentRegistryPath: null,
     availableRegistries: [],
     showRegistryList: false,
-    previousScreen: null // Track previous screen for back navigation
+
   });
 
   // Destructure state for easier access
@@ -444,7 +444,14 @@ const Home = () => {
         showRegistryChoice: true,
         registryType: null,
         previousScreen: "moduleChoice"
-      });
+      }); 
+    }
+    else if (registryType === "default" ) {
+      updateState({
+        showRegistryChoice: true,
+        registryType: null,
+        previousScreen: "moduleChoice"
+      }); 
     }
   };
 
