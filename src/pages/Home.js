@@ -28,7 +28,8 @@ const Home = () => {
     registryBuilt: false,
     currentRegistryPath: null,
     availableRegistries: [],
-    showRegistryList: false
+    showRegistryList: false,
+    previousScreen: null // Track previous screen for back navigation
   });
 
   // Destructure state for easier access
@@ -36,7 +37,8 @@ const Home = () => {
     messages, inputValue, filteredServices, isLoading, errorMessage, showPopup,
     file, activeModule, showWelcome, showModuleChoice, showRegistryChoice,
     registryType, aspects, currentAspect, suggestedAspects, showAspectForm,
-    registryBuilt, currentRegistryPath, availableRegistries, showRegistryList
+    registryBuilt, currentRegistryPath, availableRegistries, showRegistryList,
+    previousScreen
   } = state;
 
   // Fetch available registries on component mount
@@ -192,14 +194,14 @@ const Home = () => {
   }, [messages, activeModule]);
 
   // Handle file uploads
-  const handleFileChange = (e) => {
+  const handleFileChange = (e, fileType = "xml") => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
       updateState({
         file: selectedFile,
         messages: [
           ...messages,
-          { sender: "user", text: `Uploaded file: ${selectedFile.name}` }
+          { sender: "user", text: `Uploaded ${fileType.toUpperCase()} file: ${selectedFile.name}` }
         ]
       });
     }
@@ -209,7 +211,8 @@ const Home = () => {
   const handleStartNow = () => {
     updateState({
       showWelcome: false,
-      showModuleChoice: true
+      showModuleChoice: true,
+      previousScreen: "welcome"
     });
   };
 
@@ -220,6 +223,7 @@ const Home = () => {
       showRegistryChoice: true,
       registryBuilt: false,
       registryType: null,
+      previousScreen: "moduleChoice"
     });
   };
 
@@ -227,7 +231,8 @@ const Home = () => {
     updateState({
       registryType: type,
       showRegistryChoice: false,
-      isLoading: true
+      isLoading: true,
+      previousScreen: "registryChoice"
     });
     
     try {
@@ -414,6 +419,35 @@ const Home = () => {
     updateState({ aspects: newAspects });
   };
 
+  // Navigation functions
+  const handleBack = () => {
+    if (showModuleChoice) {
+      updateState({
+        showWelcome: true,
+        showModuleChoice: false,
+        previousScreen: null
+      });
+    } else if (showRegistryChoice) {
+      updateState({
+        showModuleChoice: true,
+        showRegistryChoice: false,
+        previousScreen: "welcome"
+      });
+    } else if (showRegistryList) {
+      updateState({
+        showRegistryList: false,
+        showRegistryChoice: true,
+        previousScreen: "moduleChoice"
+      });
+    } else if (registryType === "custom" && !registryBuilt) {
+      updateState({
+        showRegistryChoice: true,
+        registryType: null,
+        previousScreen: "moduleChoice"
+      });
+    }
+  };
+
   // Render functions
   const renderWelcomeScreen = () => (
     <div className="welcome-screen">
@@ -437,6 +471,9 @@ const Home = () => {
 
   const renderModuleChoice = () => (
     <div className="choice-screen">
+      <button className="back-button" onClick={handleBack}>
+        ← Back
+      </button>
       <h2>Select Discovery Mode</h2>
       <div className="option-cards">
         {[
@@ -458,6 +495,9 @@ const Home = () => {
 
   const renderRegistryChoice = () => (
     <div className="choice-screen">
+      <button className="back-button" onClick={handleBack}>
+        ← Back
+      </button>
       <h2>Select Registry Type</h2>
       <div className="option-cards">
         {[
@@ -479,6 +519,9 @@ const Home = () => {
 
   const renderRegistryList = () => (
     <div className="registry-list">
+      <button className="back-button" onClick={handleBack}>
+        ← Back
+      </button>
       <h3>Available Custom Registries</h3>
       <div className="registry-options">
         {availableRegistries.length > 0 ? (
@@ -494,7 +537,6 @@ const Home = () => {
               </div>
             ))}
             <div className="registry-actions">
-
               <button 
                 className="primary-button"
                 onClick={() => updateState({ 
@@ -534,6 +576,9 @@ const Home = () => {
     <div className="discovery-interface">
       <div className="chat-panel">
         <div className="chat-header">
+          <button className="back-button" onClick={handleBack}>
+            ← Back
+          </button>
           <h2>{activeModule === "direct" ? "Direct Discovery" : "Guided Discovery"}</h2>
           <div className="registry-info">
             <span className="registry-type">
@@ -561,74 +606,73 @@ const Home = () => {
         </div>
 
         {activeModule === "direct" && showAspectForm && (
-  <div className="aspect-form">
-    <h3>Add Aspect</h3>
-    <div className="aspect-suggestions">
-      <p>Suggested aspects:</p>
-      <div className="suggestion-tags">
-        {suggestedAspects.map((aspect, i) => (
-          <span 
-            key={i}
-            className={`aspect-tag ${currentAspect.key === aspect.key ? 'active' : ''}`}
-            onClick={() => updateState({ 
-              currentAspect: { 
-                key: aspect.key, 
-                value: currentAspect.key === aspect.key ? currentAspect.value : "" 
-              } 
-            })}
-          >
-            {aspect.display}
-          </span>
-        ))}
-      </div>
-    </div>
-    
-    <div className="form-group">
-      <label>Key:</label>
-      <input
-        type="text"
-        value={currentAspect.key}
-        onChange={(e) => updateState({
-          currentAspect: {...currentAspect, key: e.target.value}
-        })}
-        placeholder="Enter aspect key"
-      />
-    </div>
-    
-    <div className="form-group">
-      <label>Value:</label>
-      <input
-        type="text"
-        value={currentAspect.value}
-        onChange={(e) => updateState({
-          currentAspect: {...currentAspect, value: e.target.value}
-        })}
-        placeholder="Enter aspect value"
-      />
-    </div>
-    
-    <div className="form-actions">
-      <button 
-        className="primary-button" 
-        onClick={addAspect}
-        disabled={!currentAspect.key || !currentAspect.value}
-      >
-        Add Aspect
-      </button>
-      
-      <button 
-        className="secondary-button" 
-        onClick={() => updateState({ 
-          showAspectForm: false,
-          currentAspect: { key: "", value: "" }
-        })}
-      >
-        Close
-      </button>
-    </div>
-  </div>
-)}
-
+          <div className="aspect-form">
+            <h3>Add Aspect</h3>
+            <div className="aspect-suggestions">
+              <p>Suggested aspects:</p>
+              <div className="suggestion-tags">
+                {suggestedAspects.map((aspect, i) => (
+                  <span 
+                    key={i}
+                    className={`aspect-tag ${currentAspect.key === aspect.key ? 'active' : ''}`}
+                    onClick={() => updateState({ 
+                      currentAspect: { 
+                        key: aspect.key, 
+                        value: currentAspect.key === aspect.key ? currentAspect.value : "" 
+                      } 
+                    })}
+                  >
+                    {aspect.display}
+                  </span>
+                ))}
+              </div>
+            </div>
+            
+            <div className="form-group">
+              <label>Key:</label>
+              <input
+                type="text"
+                value={currentAspect.key}
+                onChange={(e) => updateState({
+                  currentAspect: {...currentAspect, key: e.target.value}
+                })}
+                placeholder="Enter aspect key"
+              />
+            </div>
+            
+            <div className="form-group">
+              <label>Value:</label>
+              <input
+                type="text"
+                value={currentAspect.value}
+                onChange={(e) => updateState({
+                  currentAspect: {...currentAspect, value: e.target.value}
+                })}
+                placeholder="Enter aspect value"
+              />
+            </div>
+            
+            <div className="form-actions">
+              <button 
+                className="primary-button" 
+                onClick={addAspect}
+                disabled={!currentAspect.key || !currentAspect.value}
+              >
+                Add Aspect
+              </button>
+              
+              <button 
+                className="secondary-button" 
+                onClick={() => updateState({ 
+                  showAspectForm: false,
+                  currentAspect: { key: "", value: "" }
+                })}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
 
         {aspects.length > 0 && (
           <div className="aspects-list">
@@ -642,54 +686,75 @@ const Home = () => {
           </div>
         )}
 
+        {!showAspectForm && !showRegistryList && (
+          <div className="input-area">
+            <input
+              type="text"
+              value={inputValue}
+              onChange={(e) => updateState({ inputValue: e.target.value })}
+              placeholder={getInputPlaceholder()}
+              onKeyPress={(e) => e.key === "Enter" && handleInputSubmit()}
+            />
 
-{!showAspectForm && !showRegistryList && (
-  <div className="input-area">
-    <input
-      type="text"
-      value={inputValue}
-      onChange={(e) => updateState({ inputValue: e.target.value })}
-      placeholder={getInputPlaceholder()}
-      onKeyPress={(e) => e.key === "Enter" && handleInputSubmit()}
-    />
+            {/* Add Aspect button - shown in direct discovery when registry is ready */}
+            {activeModule === "direct" && (registryType === "default" || registryBuilt) && (
+              <button 
+                className="aspect-button"
+                onClick={() => {
+                  updateState({ showAspectForm: true });
+                  fetchSuggestedAspects();
+                }}
+              >
+                Add Aspect
+              </button>
+            )}
 
-    {/* Add Aspect button - shown in direct discovery when registry is ready */}
-    {activeModule === "direct" && (registryType === "default" || registryBuilt) && (
-      <button 
-        className="aspect-button"
-        onClick={() => {
-          updateState({ showAspectForm: true });
-          fetchSuggestedAspects();
-        }}
-      >
-        Add Aspect
-      </button>
-    )}
+            {/* Upload buttons - different based on module */}
+            {((activeModule === "direct" && (registryType === "default" || registryBuilt)) && (
+              <label className="file-upload-button">
+                Upload XML
+                <input 
+                  type="file" 
+                  onChange={(e) => handleFileChange(e, "xml")}
+                  accept=".xml" 
+                  hidden
+                />
+              </label>
+            ))}
 
-    {/* Upload button - simplified conditional logic */}
-    {((activeModule === "direct" && (registryType === "default" || registryBuilt)) ||
-      (activeModule === "guided" && (registryType === "default" || registryBuilt))) && (
-      <label className="file-upload-button">
-        📎 Upload
-        <input 
-          type="file" 
-          onChange={handleFileChange}
-          accept={activeModule === "direct" ? ".xml" : ".xml,.uml"} 
-          hidden
-        />
-      </label>
-    )}
+            {(activeModule === "guided" && (registryType === "default" || registryBuilt)) && (
+              <>
+                <label className="file-upload-button">
+                  Upload XML
+                  <input 
+                    type="file" 
+                    onChange={(e) => handleFileChange(e, "xml")}
+                    accept=".xml" 
+                    hidden
+                  />
+                </label>
+                <label className="file-upload-button">
+                  Upload UML
+                  <input 
+                    type="file" 
+                    onChange={(e) => handleFileChange(e, "uml")}
+                    accept=".uml" 
+                    hidden
+                  />
+                </label>
+              </>
+            )}
 
-    {/* Build/Send button */}
-    <button 
-      className="primary-button"
-      onClick={getSubmitHandler()}
-      disabled={isLoading}
-    >
-      {registryType === "custom" && !registryBuilt ? "Build Registry" : "Discover"}
-    </button>
-  </div>
-)}
+            {/* Build/Send button */}
+            <button 
+              className="primary-button"
+              onClick={getSubmitHandler()}
+              disabled={isLoading}
+            >
+              {registryType === "custom" && !registryBuilt ? "Build Registry" : "Discover"}
+            </button>
+          </div>
+        )}
 
         {showRegistryList && renderRegistryList()}
       </div>
