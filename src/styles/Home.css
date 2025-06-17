@@ -643,63 +643,70 @@ button, .button {
 /* Features Section */
 .features-section {
   width: 100%;
-  padding: 8rem 2rem;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  padding: 6rem 2rem;
   text-align: center;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
   position: relative;
   overflow: hidden;
+  margin: 0;
+}
+
+.features-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.9), rgba(79, 70, 229, 0.9));
+  z-index: 0;
 }
 
 .features-section h2 {
-  text-align: center;
-  color: var(--primary-color);
+  color: white;
+  margin-bottom: 3rem;
+  position: relative;
+  z-index: 1;
   font-size: 2.5rem;
-  margin-bottom: 50px;
 }
 
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2.5rem;
-  max-width: 1200px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 2rem;
   position: relative;
+  z-index: 1;
+  padding: 0 2rem;
 }
 
 .feature-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 2rem;
   border-radius: var(--border-radius);
-  padding: 2.5rem;
   transition: var(--transition);
-  box-shadow: var(--glass-shadow);
-  transform-style: preserve-3d;
-  perspective: 1000px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
 }
 
 .feature-card:hover {
-  transform: translateY(-10px) rotateX(5deg);
-  box-shadow: 0 30px 35px -5px rgba(0, 0, 0, 0.15), 0 15px 15px -5px rgba(0, 0, 0, 0.08);
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .feature-card h3 {
-  color: var(--primary-color);
-  font-size: 1.75rem;
-  margin-bottom: 1.25rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: white;
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
 }
 
 .feature-card p {
-  color: var(--dark-color);
-  opacity: 0.8;
-  line-height: 1.8;
-  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
+  line-height: 1.6;
 }
 
 /* How It Works Section */
