@@ -214,6 +214,7 @@ const Discovery = () => {
         ...prev,
         aspects: [...prev.aspects, state.currentAspect],
         currentAspect: { key: "", value: "" },
+        showAspectForm: false,
         messages: [
           ...prev.messages,
           { sender: "user", text: `Added aspect: ${state.currentAspect.key}=${state.currentAspect.value}` }
@@ -338,7 +339,30 @@ const Discovery = () => {
                 <button onClick={() => removeAspect(i)}>×</button>
               </div>
             ))}
+            <div className="aspect-actions">
+              <button 
+                className="aspect-button"
+                onClick={() => {
+                  setState(prev => ({ ...prev, showAspectForm: true }));
+                  fetchSuggestedAspects();
+                }}
+              >
+                Add More
+              </button>
+            </div>
           </div>
+        )}
+
+        {module === "direct" && !state.aspects.length && (
+          <button 
+            className="aspect-button"
+            onClick={() => {
+              setState(prev => ({ ...prev, showAspectForm: true }));
+              fetchSuggestedAspects();
+            }}
+          >
+            Add Aspect
+          </button>
         )}
 
         <div className="input-area">
@@ -351,20 +375,8 @@ const Discovery = () => {
           />
 
           {module === "direct" && (
-            <button 
-              className="aspect-button"
-              onClick={() => {
-                setState(prev => ({ ...prev, showAspectForm: true }));
-                fetchSuggestedAspects();
-              }}
-            >
-              Add Aspect
-            </button>
-          )}
-
-          {module === "direct" && (
             <label className="file-upload-button">
-              Upload XML
+              Upload
               <input 
                 type="file" 
                 onChange={(e) => handleFileChange(e, "xml")}
