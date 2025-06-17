@@ -27,7 +27,7 @@ const RegistryChoice = () => {
       <h2>Select Registry Type</h2>
       <div className="option-cards">
         {[
-          { type: "default", title: "Servio registry", description: "Use pre-built Data", emoji: "📦" },
+          { type: "default", title: "Servio Registry", description: "Use pre-built data registry", emoji: "📦" },
           { type: "custom", title: "Custom Registry", description: "Use existing or build new registry", emoji: "🔧" }
         ].map((option, i) => (
           <div 
