@@ -118,7 +118,7 @@ const BuildRegistry = () => {
       <button className="back-button" onClick={handleBack}>
         ← Back
       </button>
-      <h3>Build or Select Registry</h3>
+      <h3>Build or Select Custom Registry</h3>
       
       <div className="build-registry-section">
         <input
