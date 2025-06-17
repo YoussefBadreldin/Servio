@@ -1,0 +1,69 @@
+/* src/styles/BuildRegistry.css */
+@import './common.css';
+
+.registry-list {
+  max-width: 800px;
+  width: 100%;
+  padding: 2rem;
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+}
+
+.build-registry-section {
+  margin: 2rem 0;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.build-registry-section input {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+}
+
+.build-registry-section input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.1);
+}
+
+.registry-options {
+  margin-top: 2rem;
+}
+
+.registry-option {
+  background-color: var(--light-color);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: var(--border-radius);
+  border: 1px solid #e9ecef;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.registry-option:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--box-shadow);
+  border-color: var(--primary-color);
+}
+
+.registry-name {
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.registry-path {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 0.5rem;
+}
+
+.no-registries {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+} 
