@@ -37,6 +37,9 @@ function SignIn() {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
+        <div className="forgot-password">
+          <Link to="/forgot-password">Forgot Password?</Link>
+        </div>
         <button type="submit">Sign In</button>
       </form>
 
@@ -59,7 +62,6 @@ function SignIn() {
       </div>
 
       <div className="footer-links">
-        <Link to="/forgot-password">Forgot Password?</Link>
         <Link to="/signup">Don't have an account? Sign Up</Link>
       </div>
     </div>
