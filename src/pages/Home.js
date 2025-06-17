@@ -2,9 +2,11 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Home.css";
+import useScrollToTop from "../hooks/useScrollToTop";
 
 function Home() {
   const navigate = useNavigate();
+  useScrollToTop();
 
   return (
     <div className="landing-page">

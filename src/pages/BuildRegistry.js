@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "../styles/BuildRegistry.css";
+import useScrollToTop from "../hooks/useScrollToTop";
 
 const API_BASE_URL = "http://localhost:8000/api";
 const DEFAULT_REGISTRY_LIMIT = 5;
@@ -22,6 +23,8 @@ const BuildRegistry = () => {
   useEffect(() => {
     fetchRegistries();
   }, []);
+
+  useScrollToTop();
 
   const fetchRegistries = async () => {
     try {

@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "../styles/Discovery.css";
+import useScrollToTop from "../hooks/useScrollToTop";
 
 const API_BASE_URL = "http://localhost:8000/api";
 
@@ -227,6 +228,8 @@ const Discovery = () => {
       aspects: prev.aspects.filter((_, i) => i !== index)
     }));
   };
+
+  useScrollToTop();
 
   return (
     <div className="discovery-interface">

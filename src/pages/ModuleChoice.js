@@ -1,9 +1,11 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/ModuleChoice.css";
+import useScrollToTop from "../hooks/useScrollToTop";
 
 const ModuleChoice = () => {
   const navigate = useNavigate();
+  useScrollToTop();
 
   const handleModuleSelect = (module) => {
     navigate("/registry-choice", { state: { module } });

@@ -5,6 +5,7 @@ import '../styles/SignUp.css';
 import GoogleLogo from "../assets/google-logo.png"; // Adjusted import paths
 import FacebookLogo from "../assets/facebook-logo.png";
 import AppleLogo from "../assets/applelogo.png";
+import useScrollToTop from "../hooks/useScrollToTop";
 
 function SignUp() {
   const [name, setName] = useState("");
@@ -14,6 +15,7 @@ function SignUp() {
   const [phone, setPhone] = useState("");
 
   const navigate = useNavigate();
+  useScrollToTop();
 
   const handleSubmit = (e) => {
     e.preventDefault();

@@ -1,11 +1,13 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "../styles/RegistryChoice.css";
+import useScrollToTop from "../hooks/useScrollToTop";
 
 const RegistryChoice = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { module } = location.state || {};
+  useScrollToTop();
 
   const handleRegistrySelect = (type) => {
     if (type === "custom") {

@@ -5,11 +5,13 @@ import "../styles/SignIn.css";
 import FacebookLogo from "../assets/facebook-logo.png";
 import GoogleLogo from "../assets/google-logo.png";
 import AppleLogo from "../assets/applelogo.png";
+import useScrollToTop from "../hooks/useScrollToTop";
 
 function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate(); 
+  useScrollToTop();
 
   const handleSubmit = (e) => {
     e.preventDefault();
