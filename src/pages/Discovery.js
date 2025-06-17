@@ -374,9 +374,9 @@ const Discovery = () => {
             onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
           />
 
-          {module === "direct" && (
+          <div className="upload-buttons">
             <label className="file-upload-button">
-              Upload
+              Upload 
               <input 
                 type="file" 
                 onChange={(e) => handleFileChange(e, "xml")}
@@ -384,30 +384,9 @@ const Discovery = () => {
                 hidden
               />
             </label>
-          )}
 
-          {module === "guided" && (
-            <>
-              <label className="file-upload-button">
-                Upload XML
-                <input 
-                  type="file" 
-                  onChange={(e) => handleFileChange(e, "xml")}
-                  accept=".xml" 
-                  hidden
-                />
-              </label>
-              <label className="file-upload-button">
-                Upload UML
-                <input 
-                  type="file" 
-                  onChange={(e) => handleFileChange(e, "uml")}
-                  accept=".uml" 
-                  hidden
-                />
-              </label>
-            </>
-          )}
+
+          </div>
 
           <button 
             className="primary-button"

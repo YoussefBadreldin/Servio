@@ -117,18 +117,16 @@
 
 .input-area {
   display: flex;
-  gap: 0.5rem;
-  padding: 0.5rem;
-  background-color: white;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: var(--light-color);
   border-top: 1px solid #eee;
-  margin-top: 0.25rem;
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
+  align-items: center;
 }
 
-.input-area input {
+.input-area input[type="text"] {
   flex: 1;
-  padding: 0.5rem;
+  padding: 0.75rem;
   border: 1px solid #ddd;
   border-radius: var(--border-radius);
   font-size: 1rem;
@@ -138,6 +136,28 @@
   outline: none;
   border-color: var(--primary-color);
   box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.1);
+}
+
+.upload-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.file-upload-button {
+  padding: 0.5rem 1rem;
+  background-color: white;
+  border: 1px solid var(--primary-color);
+  border-radius: var(--border-radius);
+  color: var(--primary-color);
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: var(--transition);
+  display: inline-block;
+}
+
+.file-upload-button:hover {
+  background-color: var(--primary-color);
+  color: white;
 }
 
 .aspect-button, .file-upload-button {
