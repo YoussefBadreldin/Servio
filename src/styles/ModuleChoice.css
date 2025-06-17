@@ -23,12 +23,15 @@
 }
 
 .option-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 2rem;
   margin: 0;
   padding: 2rem;
   flex: 1;
+  width: 100%;
+  max-width: 1200px;
 }
 
 .option-card {
@@ -38,6 +41,8 @@
   border: 1px solid #e9ecef;
   transition: var(--transition);
   cursor: pointer;
+  flex: 1;
+  max-width: 400px;
 }
 
 .option-card:hover {

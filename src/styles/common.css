@@ -88,8 +88,12 @@ button, .button {
 .back-button {
   background: none;
   color: var(--dark-color);
-  padding: 0.5rem;
+  padding: 0.5rem 0.75rem;
   font-size: 1.2rem;
+  width: fit-content;
+  min-width: unset;
+  margin: 1rem;
+  align-self: flex-start;
 }
 
 .back-button:hover {
