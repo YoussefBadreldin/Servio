@@ -25,8 +25,7 @@ const Footer = () => {
           <ul>
             <li><a href="mailto:support@servio.com">support@servio.com</a></li>
             <li><a href="https://github.com/your-repo" target="_blank" rel="noopener noreferrer">GitHub</a></li>
-            <li><a href="https://twitter.com/servio" target="_blank" rel="noopener noreferrer">Twitter</a></li>
-          </ul>
+            </ul>
         </div>
         
         <div className="footer-section">
