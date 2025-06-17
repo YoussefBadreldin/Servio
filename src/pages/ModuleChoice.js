@@ -21,14 +21,15 @@ const ModuleChoice = () => {
       <h2>Select Discovery Mode</h2>
       <div className="option-cards">
         {[
-          { module: "direct", title: "Direct Discovery", description: "Precise aspect-based search" },
-          { module: "guided", title: "Guided Discovery", description: "AI-powered conversational search" }
+          { module: "direct", title: "Direct Discovery", description: "Precise aspect-based search", emoji: "🎯" },
+          { module: "guided", title: "Guided Discovery", description: "AI-powered conversational search", emoji: "🤖" }
         ].map((option, i) => (
           <div 
             key={i} 
             className="option-card" 
             onClick={() => handleModuleSelect(option.module)}
           >
+            <span className="option-emoji">{option.emoji}</span>
             <h3>{option.title}</h3>
             <p>{option.description}</p>
           </div>

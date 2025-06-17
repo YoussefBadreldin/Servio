@@ -4,53 +4,131 @@
 .choice-screen {
   width: 100vw;
   min-width: 100%;
-  height: 100vh;
+  height: 55vh;
   min-height: 100%;
   text-align: center;
-  padding: 0;
-  background-color: white;
-  border-radius: 0;
-  box-shadow: none;
-  margin: 0;
+  padding: 2rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
+  justify-content: center;
+
+}
+
+.back-button {
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+  background: white;
+  border: none;
+  padding: 0.5rem 1.25rem;
+  border-radius: 50px;
+  font-size: 1rem;
+  color: var(--primary-color);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: fit-content;
+  line-height: 1.2;
+}
+
+.back-button:hover {
+  transform: translateX(-5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+h2 {
+  font-size: 2.5rem;
+  color: #2d3436;
+  margin: 0 0 3rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
 }
 
 .option-cards {
   display: flex;
   flex-direction: row;
   justify-content: center;
-  gap: 2rem;
+  gap: 3rem;
   margin: 0;
   padding: 2rem;
   flex: 1;
   width: 100%;
   max-width: 1200px;
+  max-height: 10%;
 }
 
 .option-card {
   background-color: white;
-  padding: 1.5rem;
-  border-radius: var(--border-radius);
-  border: 1px solid #e9ecef;
-  transition: var(--transition);
+  padding: 2.5rem;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   flex: 1;
   max-width: 400px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.option-emoji {
+  font-size: 3rem;
+  margin-bottom: 1.5rem;
+  display: block;
+  transition: transform 0.3s ease;
 }
 
 .option-card:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--box-shadow);
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   border-color: var(--primary-color);
+}
+
+.option-card:hover .option-emoji {
+  transform: scale(1.1);
 }
 
 .option-card h3 {
   color: var(--primary-color);
+  font-size: 1.75rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.option-card p {
+  color: #636e72;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .option-cards {
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .option-card {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  h2 {
+    font-size: 2rem;
+    margin: 3rem 0 2rem;
+  }
+
+  .back-button {
+    top: 1rem;
+    left: 1rem;
+  }
 } 
