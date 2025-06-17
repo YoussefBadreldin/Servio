@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import "../styles/Home.css";
+import "../styles/Discovery.css";
 
 const API_BASE_URL = "http://localhost:8000/api";
 

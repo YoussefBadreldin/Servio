@@ -4,29 +4,43 @@
 .discovery-interface {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 2rem;
-  width: 100%;
-  max-width: 1400px;
+  gap: 0;
+  width: 100vw;
+  min-width: 100%;
+  height: 100vh;
+  min-height: 100%;
   background-color: white;
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
+  border-radius: 0;
+  box-shadow: none;
   overflow: hidden;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  padding: 2rem;
 }
 
 .chat-panel {
   display: flex;
   flex-direction: column;
-  padding: 1.5rem;
+  padding: 2rem;
   background-color: var(--chat-bg);
+  height: calc(100vh - 4rem);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
 }
 
 .chat-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
   border-bottom: 1px solid #eee;
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
 }
 
 .registry-info {
@@ -40,11 +54,11 @@
 .chat-messages {
   flex: 1;
   overflow-y: auto;
-  max-height: 60vh;
-  padding: 1rem;
-  margin-bottom: 1rem;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
   background-color: #f9f9f9;
   border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
 }
 
 .message {
@@ -76,10 +90,13 @@
 
 .input-area {
   display: flex;
-  gap: 0.5rem;
-  padding: 1rem;
+  gap: 1rem;
+  padding: 1.5rem;
   background-color: white;
   border-top: 1px solid #eee;
+  margin-top: auto;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
 }
 
 .input-area input {
@@ -109,11 +126,13 @@
 }
 
 .results-panel {
-  padding: 1.5rem;
+  padding: 2rem;
   background-color: #f9f9f9;
   border-left: 1px solid #eee;
   overflow-y: auto;
-  max-height: 100vh;
+  height: calc(100vh - 4rem);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
 }
 
 .services-grid {
