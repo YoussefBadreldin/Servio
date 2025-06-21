@@ -375,17 +375,56 @@ const Discovery = () => {
           />
 
           <div className="upload-buttons">
-            <label className="file-upload-button">
-              Upload 
-              <input 
-                type="file" 
-                onChange={(e) => handleFileChange(e, "xml")}
-                accept=".xml" 
-                hidden
-              />
-            </label>
-
-
+            {module === "direct" ? (
+              <label className="file-upload-button">
+                Upload XML
+                <input 
+                  type="file" 
+                  onChange={(e) => handleFileChange(e, "xml")}
+                  accept=".xml" 
+                  hidden
+                />
+              </label>
+            ) : (
+              <>
+                <label className="file-upload-button">
+                  Upload XML
+                  <input 
+                    type="file" 
+                    onChange={(e) => handleFileChange(e, "xml")}
+                    accept=".xml" 
+                    hidden
+                  />
+                </label>
+                <label className="file-upload-button">
+                  Upload JSON
+                  <input 
+                    type="file" 
+                    onChange={(e) => handleFileChange(e, "json")}
+                    accept=".json" 
+                    hidden
+                  />
+                </label>
+                <label className="file-upload-button">
+                  Upload UML
+                  <input 
+                    type="file" 
+                    onChange={(e) => handleFileChange(e, "uml")}
+                    accept=".uml,.plantuml,.puml" 
+                    hidden
+                  />
+                </label>
+                <label className="file-upload-button">
+                  Upload PDF
+                  <input 
+                    type="file" 
+                    onChange={(e) => handleFileChange(e, "pdf")}
+                    accept=".pdf" 
+                    hidden
+                  />
+                </label>
+              </>
+            )}
           </div>
 
           <button 

@@ -16,20 +16,34 @@ function Navbar({ isLoggedIn, username }) {
           />
         </Link>
       </div>
-      <ul className="navbar-links">
-        {isLoggedIn ? (
-          <>
-            <li>Welcome, {username}!</li>
-            <li>
-              <Link to="/logout">Logout</Link>
-            </li>
-          </>
-        ) : (
+      
+      <div className="navbar-nav">
+        <ul className="navbar-links">
           <li>
-            <Link to="/signin">Sign In</Link>
+            <Link to="/" className="nav-link">Home</Link>
           </li>
+          <li>
+            <Link to="/module-choice" className="nav-link">Discover</Link>
+          </li>
+          <li>
+            <Link to="/build-registry" className="nav-link">Build Registry</Link>
+          </li>
+        </ul>
+      </div>
+
+      <div className="navbar-auth">
+        {isLoggedIn ? (
+          <div className="user-section">
+            <span className="welcome-text">Welcome, {username}!</span>
+            <Link to="/logout" className="auth-button logout-button">Logout</Link>
+          </div>
+        ) : (
+          <div className="auth-buttons">
+            <Link to="/signin" className="auth-button signin-button">Sign In</Link>
+            <Link to="/signup" className="auth-button signup-button">Sign Up</Link>
+          </div>
         )}
-      </ul>
+      </div>
     </nav>
   );
 }

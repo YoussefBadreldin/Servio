@@ -141,6 +141,7 @@
 .upload-buttons {
   display: flex;
   gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .file-upload-button {
@@ -150,14 +151,18 @@
   border-radius: var(--border-radius);
   color: var(--primary-color);
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   transition: var(--transition);
   display: inline-block;
+  white-space: nowrap;
+  min-width: fit-content;
 }
 
 .file-upload-button:hover {
   background-color: var(--primary-color);
   color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .aspect-button, .file-upload-button {
@@ -355,6 +360,16 @@
   
   .input-area button, .input-area .file-upload-button {
     width: 100%;
+  }
+  
+  .upload-buttons {
+    justify-content: center;
+  }
+  
+  .file-upload-button {
+    flex: 1;
+    min-width: 0;
+    text-align: center;
   }
 }
 

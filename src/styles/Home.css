@@ -510,6 +510,8 @@ button, .button {
   display: flex;
   flex-direction: column;
   align-items: center;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 /* Hero Section */
@@ -623,6 +625,8 @@ button, .button {
   padding: 6rem 2rem;
   background: var(--light-color);
   text-align: center;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 .about-section h2 {
@@ -650,6 +654,7 @@ button, .button {
   position: relative;
   overflow: hidden;
   margin: 0;
+  max-width: 100vw;
 }
 
 .features-section::before {
@@ -716,6 +721,8 @@ button, .button {
   background: var(--light-color);
   text-align: center;
   position: relative;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 .how-it-works h2 {
@@ -726,62 +733,64 @@ button, .button {
 
 .steps-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2.5rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3rem;
   max-width: 1200px;
-  margin: 0 auto;
+  margin: 2rem auto 0;
   padding: 2rem;
+  justify-content: center;
 }
 
 .step-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
+  position: relative;
+  background: white;
   border-radius: var(--border-radius);
-  padding: 2.5rem;
+  padding: 2.5rem 1.5rem 1.5rem;
   text-align: center;
   transition: var(--transition);
-  box-shadow: var(--glass-shadow);
-  transform-style: preserve-3d;
-  perspective: 1000px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  min-height: 220px;
 }
 
 .step-card:hover {
-  transform: translateY(-10px) rotateX(5deg);
-  box-shadow: 0 30px 35px -5px rgba(0, 0, 0, 0.15), 0 15px 15px -5px rgba(0, 0, 0, 0.08);
+  transform: translateY(-5px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 .step-number {
-  width: 60px;
-  height: 60px;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
   background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   color: white;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.75rem;
+  font-size: 1.25rem;
   font-weight: 700;
-  margin: 0 auto 2rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 2px solid var(--light-color);
 }
 
 .step-card h3 {
   color: var(--primary-color);
-  font-size: 1.75rem;
-  margin-bottom: 1.25rem;
+  font-size: 1.25rem;
+  margin-bottom: 0.75rem;
   font-weight: 700;
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  background: none;
+  -webkit-background-clip: unset;
+  background-clip: unset;
 }
 
 .step-card p {
-  color: var(--dark-color);
-  opacity: 0.8;
-  line-height: 1.8;
-  font-size: 1.1rem;
+  color: #64748b;
+  opacity: 1;
+  line-height: 1.5;
+  font-size: 0.9rem;
 }
 
 /* CTA Section */
@@ -792,6 +801,7 @@ button, .button {
   background: linear-gradient(135deg, rgba(124, 58, 237, 0.05) 0%, rgba(79, 70, 229, 0.05) 100%);
   position: relative;
   overflow: hidden;
+  max-width: 100vw;
 }
 
 .cta-section h2 {
@@ -823,12 +833,14 @@ button, .button {
   
   .about-section,
   .features-section,
+  .modules-section,
   .how-it-works,
   .cta-section {
     padding: 4rem 1rem;
   }
   
   .features-grid,
+  .modules-grid,
   .steps-grid {
     grid-template-columns: 1fr;
     padding: 1rem;
@@ -836,8 +848,17 @@ button, .button {
   }
   
   .feature-card,
+  .module-card,
   .step-card {
     padding: 2rem;
+  }
+  
+  .modules-section h2 {
+    font-size: 2rem;
+  }
+  
+  .module-card h3 {
+    font-size: 1.25rem;
   }
   
   .cta-section h2 {
@@ -847,4 +868,84 @@ button, .button {
   .cta-section p {
     font-size: 1.25rem;
   }
+}
+
+/* Modules Section */
+.modules-section {
+  width: 100%;
+  padding: 4rem 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  text-align: center;
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+.modules-section h2 {
+  color: white;
+  font-size: 2.5rem;
+  margin-bottom: 3rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.modules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.module-card {
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--dark-color);
+  padding: 2rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  transition: var(--transition);
+  text-align: left;
+}
+
+.module-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.module-card h3 {
+  color: var(--primary-color);
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.module-card p {
+  color: #64748b;
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.module-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.module-card li {
+  padding: 0.5rem 0;
+  position: relative;
+  padding-left: 1.5rem;
+  color: #475569;
+  font-size: 0.95rem;
+}
+
+.module-card li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--success-color);
+  font-weight: bold;
+  font-size: 1.1rem;
 }
