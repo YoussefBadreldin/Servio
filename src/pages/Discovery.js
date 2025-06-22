@@ -340,21 +340,23 @@ const Discovery = () => {
               </div>
             ))}
             <div className="aspect-actions">
-              <button 
-                className="aspect-button"
-                onClick={() => {
-                  setState(prev => ({ ...prev, showAspectForm: true }));
-                  fetchSuggestedAspects();
-                }}
-              >
-                Add More
-              </button>
+              {!state.showAspectForm && (
+                <button
+                  className="aspect-button"
+                  onClick={() => {
+                    setState(prev => ({ ...prev, showAspectForm: true }));
+                    fetchSuggestedAspects();
+                  }}
+                >
+                  Add More
+                </button>
+              )}
             </div>
           </div>
         )}
 
-        {module === "direct" && !state.aspects.length && (
-          <button 
+        {module === "direct" && !state.aspects.length && !state.showAspectForm && (
+          <button
             className="aspect-button"
             onClick={() => {
               setState(prev => ({ ...prev, showAspectForm: true }));
