@@ -72,6 +72,9 @@ function SignUp() {
           required
         />
         <button type="submit">Sign Up</button>
+        <div className="footer-links">
+          <Link to="/signin">Have an account? Sign In</Link>
+        </div>
       </form>
 
       <div className="social-login">
@@ -90,10 +93,6 @@ function SignUp() {
           alt="Sign up with Apple"
           onClick={() => console.log("Apple login")}
         />
-      </div>
-
-      <div className="footer-links">
-        <Link to="/signin">Have an account? Sign In</Link>
       </div>
     </div>
   );

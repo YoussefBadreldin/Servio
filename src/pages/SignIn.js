@@ -43,6 +43,9 @@ function SignIn() {
           <Link to="/forgot-password">Forgot Password?</Link>
         </div>
         <button type="submit">Sign In</button>
+        <div className="footer-links">
+          <Link to="/signup">Don't have an account? Sign Up</Link>
+        </div>
       </form>
 
       <div className="social-login">
@@ -61,10 +64,6 @@ function SignIn() {
           alt="Sign in with Apple"
           onClick={() => console.log("Apple login")}
         />
-      </div>
-
-      <div className="footer-links">
-        <Link to="/signup">Don't have an account? Sign Up</Link>
       </div>
     </div>
   );
