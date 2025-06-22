@@ -21,7 +21,10 @@ const ModuleChoice = () => {
         ← Back
       </button>
       <h2>Select Discovery Mode</h2>
-      <div className="option-cards">
+      <div
+        className="option-cards"
+        style={{ flex: "initial", maxHeight: "none" }}
+      >
         {[
           { module: "direct", title: "Direct Discovery", description: "Precise aspect-based search", emoji: "🎯" },
           { module: "guided", title: "Guided Discovery", description: "AI-powered conversational search", emoji: "🤖" }
