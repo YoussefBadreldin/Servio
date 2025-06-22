@@ -7,8 +7,7 @@
   gap: 0;
   width: 100vw;
   min-width: 100%;
-  height: 100vh;
-  min-height: 100%;
+  min-height: calc(100vh - 7rem);
   background-color: white;
   border-radius: 0;
   box-shadow: none;
@@ -19,6 +18,50 @@
   margin-left: -50vw;
   margin-right: -50vw;
   padding: 1rem;
+  box-sizing: border-box;
+}
+
+.discovery-interface .chat-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  gap: 1rem;
+  position: relative;
+}
+
+.discovery-interface .back-button {
+  position: absolute;
+  top: 35%;
+  left: 1rem;
+  transform: translateY(-50%);
+  padding: 0.5rem 1rem;
+  background: white;
+  border-radius: 50px;
+  cursor: pointer;
+  color: var(--primary-color);
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.discovery-interface .back-button:hover {
+  color: var(--primary-hover);
+  border-color: var(--primary-hover);
+  transform: translateY(-50%) translateX(-1px);
+}
+
+.discovery-interface .chat-header h2 {
+  margin: 0;
+  flex: 1;
+  text-align: center;
 }
 
 .chat-panel {
@@ -26,7 +69,7 @@
   flex-direction: column;
   padding: 0.5rem;
   background-color: var(--chat-bg);
-  height: calc(100vh - 7rem);
+  height: 100%;
   border-radius: var(--border-radius);
   box-shadow: var(--box-shadow);
 }
@@ -37,7 +80,7 @@
   margin-bottom: 1rem;
   padding: 1rem;
   border-bottom: 1px solid #eee;
-  background-color: white;
+  background-color: #f0f0f0;
   border-radius: var(--border-radius);
   box-shadow: var(--box-shadow);
   gap: 1rem;
@@ -182,7 +225,7 @@
   background-color: #f9f9f9;
   border-left: 1px solid #eee;
   overflow-y: auto;
-  height: calc(100vh - 4rem);
+  height: 100%;
   border-radius: var(--border-radius);
   box-shadow: var(--box-shadow);
 }
