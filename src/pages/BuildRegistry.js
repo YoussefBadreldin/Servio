@@ -4,7 +4,7 @@ import "../styles/BuildRegistry.css";
 import useScrollToTop from "../hooks/useScrollToTop";
 
 const API_BASE_URL = "http://localhost:8000/api";
-const DEFAULT_REGISTRY_LIMIT = 5;
+const DEFAULT_REGISTRY_LIMIT = 10000;
 
 const BuildRegistry = () => {
   const navigate = useNavigate();
@@ -170,6 +170,13 @@ const BuildRegistry = () => {
               Close
             </button>
           </div>
+        </div>
+      )}
+
+      {state.isLoading && (
+        <div className="loading-overlay">
+          <div className="spinner"></div>
+          <p>Building registry, please wait...</p>
         </div>
       )}
     </div>

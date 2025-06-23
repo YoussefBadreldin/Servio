@@ -493,7 +493,7 @@ const Discovery = () => {
           <h2>{module === "direct" ? "Direct Discovery" : "Guided Discovery"}</h2>
           <div className="registry-info">
             <span className="registry-type">
-              {registryType === "default" ? "Servio registry" : registryPath ? `Custom: ${registryPath.split('/').pop()}` : "No registry loaded"}
+              {registryType === "default" ? "Servio registry" : registryPath ? `Custom Registery` : "No registry loaded"}
             </span>
           </div>
         </div>
