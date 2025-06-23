@@ -316,7 +316,7 @@
 }
 
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 4px;
   width: 100%;
   display: flex;
   justify-content: center;
@@ -349,6 +349,12 @@
   font-size: 0.8rem;
   max-width: 200px;
   height: 28px;
+  color: black !important;
+}
+
+.input-row input::placeholder {
+  color: black !important;
+  opacity: 0.6;
 }
 
 .input-row input:focus {

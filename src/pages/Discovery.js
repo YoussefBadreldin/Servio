@@ -5,6 +5,24 @@ import useScrollToTop from "../hooks/useScrollToTop";
 
 const API_BASE_URL = "http://localhost:8000/api";
 
+const guidedQuestions = [
+  "What is your preferred programming language or technology stack?",
+  "Do you have any specific requirements for authentication or security?",
+  "What is your expected scale or number of users?",
+  "Are there any compliance or regulatory needs?",
+  "Do you have a preferred cloud provider or deployment environment?"
+];
+
+const followUpQuestions = [
+  "Could you tell me more about any specific features you're looking for?",
+  "Are there any performance requirements I should know about?",
+  "Do you have any budget constraints to consider?",
+  "Are there any integration requirements with existing systems?",
+  "What about monitoring and logging requirements?",
+  "Any specific availability or uptime requirements?",
+  "Do you need any specific support or maintenance options?"
+];
+
 const Discovery = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -28,6 +46,10 @@ const Discovery = () => {
     lastQuery: ""
   });
 
+  const [guidedStep, setGuidedStep] = useState(0);
+  const [guidedAnswers, setGuidedAnswers] = useState([]);
+  const [followUpIndex, setFollowUpIndex] = useState(0);
+
   useEffect(() => {
     // Add initial message based on module type
     setState(prev => ({
@@ -37,13 +59,17 @@ const Discovery = () => {
           sender: "bot", 
           text: module === "direct" 
             ? "Please enter your query and either add aspects or upload an XML file"
-            : "Hello! This is Servio AI Assistant, your smart assistant for efficient service discovery. What are the details of the service you are looking for? \n (N.B: you can upload supporting documents as umls or xmls)" 
+            : "Hello! This is Servio AI Assistant, your smart assistant for efficient service discovery. What are the details of the service you are looking for?" 
         }
       ]
     }));
 
     if (module === "direct") {
       fetchSuggestedAspects();
+    }
+    if (module === "guided") {
+      setGuidedStep(0);
+      setGuidedAnswers([]);
     }
   }, [module]);
 
@@ -55,11 +81,11 @@ const Discovery = () => {
         ...prev,
         suggestedAspects: data.suggested_aspects
           .map(aspect => ({
-            key: aspect,
-            display: aspect.split('_').map(word => 
-              word.charAt(0).toUpperCase() + word.slice(1)
-            ).join(' ')
-          }))
+          key: aspect,
+          display: aspect.split('_').map(word => 
+            word.charAt(0).toUpperCase() + word.slice(1)
+          ).join(' ')
+        })) 
           .filter(aspect => !prev.aspects.some(usedAspect => usedAspect.key === aspect.key))
       }));
     } catch (error) {
@@ -104,6 +130,9 @@ const Discovery = () => {
       let fileText = `**File:**\n${state.file.name}`;
       let combinedText = queryText ? `${queryText}\n\n${fileText}` : fileText;
       newMessages.push({ sender: "user", text: combinedText });
+    } else if (module === "guided") {
+      await handleUserInput(state.inputValue);
+      return;
     } else {
       newMessages.push({ 
         text: state.inputValue, 
@@ -174,8 +203,8 @@ const Discovery = () => {
     displayResults(data);
   };
 
-  const performDiscovery = async (xmlPath) => {
-    const response = await fetch(`${API_BASE_URL}/direct/discover`, {
+  const performDiscovery = useCallback((xmlPath) => {
+    const response = fetch(`${API_BASE_URL}/direct/discover`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -183,9 +212,9 @@ const Discovery = () => {
         xml_path: xmlPath
       })
     });
-    const data = await response.json();
+    const data = response.json();
     displayResults(data);
-  };
+  }, [state.inputValue, displayResults]);
 
   const displayResults = useCallback((data) => {
     const results = data.matches || data.recommendations || [];
@@ -254,6 +283,108 @@ const Discovery = () => {
     }));
   };
 
+  const handleSatisfactionResponse = (isSatisfied) => {
+    if (isSatisfied) {
+      setState(prev => ({
+        ...prev,
+        postSearchStep: "rating"
+      }));
+    } else if (module === "guided") {
+      // Ask follow-up question and prepare for new search
+      const nextQuestion = followUpQuestions[followUpIndex];
+      setState(prev => ({
+        ...prev,
+        postSearchStep: null,
+        inputValue: "",
+        messages: [
+          ...prev.messages,
+          {
+            sender: "bot",
+            text: "I understand you're not satisfied with the results. " + nextQuestion
+          }
+        ]
+      }));
+      setFollowUpIndex(prev => (prev + 1) % followUpQuestions.length);
+    } else {
+      // ... existing direct mode code ...
+    }
+  };
+
+  const handleFeedbackSubmit = (rating, feedback) => {
+    setState(prev => ({
+      ...prev,
+      messages: [
+        ...prev.messages,
+        {
+          sender: "bot",
+          text: "Thank you for your valuable feedback! Your input helps us improve our service."
+        }
+      ],
+      postSearchStep: "complete"
+    }));
+  };
+
+  const handleUserInput = async (input) => {
+    if (!input.trim()) return;
+
+    // Add user message
+    setState(prev => ({
+      ...prev,
+      messages: [...prev.messages, { sender: "user", text: input }],
+      inputValue: ""
+    }));
+
+    // Track which question we're on (initial or follow-up)
+    let currentStep = guidedStep;
+    let allAnswers = [...guidedAnswers, input];
+
+    // If there are more guided questions, ask the next one
+    if (module === "guided" && currentStep < guidedQuestions.length) {
+      setGuidedAnswers(allAnswers);
+      setGuidedStep(currentStep + 1);
+      setState(prev => ({
+        ...prev,
+        messages: [
+          ...prev.messages,
+          { sender: "bot", text: guidedQuestions[currentStep] }
+        ],
+        lastQuery: input,
+        inputValue: "",
+        file: null,
+        isLoading: false,
+        errorMessage: "",
+      }));
+      return;
+    }
+
+    // If all questions are answered or in refinement, perform search
+    if (module === "guided") {
+      setGuidedAnswers(allAnswers);
+      setGuidedStep(currentStep + 1);
+      setState(prev => ({ ...prev, isLoading: true }));
+      const fullQuery = allAnswers.filter(Boolean).join(". ");
+      try {
+        const response = await fetch(`${API_BASE_URL}/guided/recommend`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: fullQuery })
+        });
+        const data = await response.json();
+        displayResults(data);
+      } catch (error) {
+        setState(prev => ({
+          ...prev,
+          errorMessage: error.message || "An error occurred. Please try again.",
+          showPopup: true,
+          isLoading: false
+        }));
+      }
+      return;
+    }
+
+    // ... existing direct mode logic ...
+  };
+
   useScrollToTop();
 
   return (
@@ -278,7 +409,7 @@ const Discovery = () => {
               {msg.file && <div className="file-attachment">📎 {msg.file}</div>}
             </div>
           ))}
-          {state.isLoading && <div className="message bot">Processing...</div>}
+          {state.isLoading && state.postSearchStep !== null && <div className="message bot">Processing...</div>}
         </div>
 
         {module === "direct" && state.showAspectForm && (
@@ -307,31 +438,31 @@ const Discovery = () => {
             
             <div className="form-group">
               <div className="input-row">
-                <label>Key:</label>
-                <input
-                  type="text"
-                  value={state.currentAspect.key}
-                  onChange={(e) => setState(prev => ({
-                    ...prev,
-                    currentAspect: {...prev.currentAspect, key: e.target.value}
-                  }))}
-                  placeholder="Enter aspect key"
-                />
+              <label>Key:</label>
+              <input
+                type="text"
+                value={state.currentAspect.key}
+                onChange={(e) => setState(prev => ({
+                  ...prev,
+                  currentAspect: {...prev.currentAspect, key: e.target.value}
+                }))}
+                placeholder="Enter aspect key"
+              />
               </div>
             </div>
             
             <div className="form-group">
               <div className="input-row">
-                <label>Value:</label>
-                <input
-                  type="text"
-                  value={state.currentAspect.value}
-                  onChange={(e) => setState(prev => ({
-                    ...prev,
-                    currentAspect: {...prev.currentAspect, value: e.target.value}
-                  }))}
-                  placeholder="Enter aspect value"
-                />
+              <label>Value:</label>
+              <input
+                type="text"
+                value={state.currentAspect.value}
+                onChange={(e) => setState(prev => ({
+                  ...prev,
+                  currentAspect: {...prev.currentAspect, value: e.target.value}
+                }))}
+                placeholder="Enter aspect value"
+              />
               </div>
             </div>
             
@@ -383,8 +514,8 @@ const Discovery = () => {
           </div>
         )}
 
-        {/* Show uploaded file with remove option if file is uploaded and not showing aspects */}
-        {module === "direct" && state.file && !state.showAspectForm && state.aspects.length === 0 && (
+        {/* Show uploaded file with remove option if file is uploaded and not showing aspects (for both direct and guided) */}
+        {state.file && !state.showAspectForm && state.aspects.length === 0 && !state.postSearchStep && (
           <div className="uploaded-file-box">
             <span>Uploaded file: {state.file.name}</span>
             <button className="remove-file-btn" onClick={() => setState(prev => ({ ...prev, file: null }))}>×</button>
@@ -405,91 +536,91 @@ const Discovery = () => {
         )}
 
         {!state.postSearchStep ? (
-          <div className="input-area">
-            <input
-              type="text"
-              value={state.filteredServices.length > 0 ? state.lastQuery : state.inputValue}
-              onChange={(e) => setState(prev => ({ ...prev, inputValue: e.target.value }))}
-              placeholder={module === "direct" ? "Enter your search query..." : "Describe the service you need..."}
-              onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-              disabled={state.filteredServices.length > 0}
-            />
-            <div className="upload-buttons">
-              {module === "direct" ? (
+        <div className="input-area">
+          <input
+            type="text"
+            value={module === "direct" && state.filteredServices.length > 0 ? state.lastQuery : state.inputValue}
+            onChange={(e) => setState(prev => ({ ...prev, inputValue: e.target.value }))}
+            placeholder={module === "direct" ? "Enter your search query..." : "Describe the service you need..."}
+            onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+            disabled={module === "direct" ? state.filteredServices.length > 0 : false}
+          />
+          <div className="upload-buttons">
+            {module === "direct" ? (
                 <label className={`file-upload-button ${state.filteredServices.length > 0 ? 'disabled' : ''}`}>
+                Upload XML
+                <input 
+                  type="file" 
+                  onChange={(e) => handleFileChange(e, "xml")}
+                  accept=".xml" 
+                  hidden
+                    disabled={state.filteredServices.length > 0}
+                />
+              </label>
+            ) : (
+              <>
+                  <label className={`file-upload-button ${state.filteredServices.length > 0 ? 'disabled' : ''}`}>
                   Upload XML
                   <input 
                     type="file" 
                     onChange={(e) => handleFileChange(e, "xml")}
                     accept=".xml" 
                     hidden
-                    disabled={state.filteredServices.length > 0}
+                      disabled={state.filteredServices.length > 0}
                   />
                 </label>
-              ) : (
-                <>
                   <label className={`file-upload-button ${state.filteredServices.length > 0 ? 'disabled' : ''}`}>
-                    Upload XML
-                    <input 
-                      type="file" 
-                      onChange={(e) => handleFileChange(e, "xml")}
-                      accept=".xml" 
-                      hidden
+                  Upload JSON
+                  <input 
+                    type="file" 
+                    onChange={(e) => handleFileChange(e, "json")}
+                    accept=".json" 
+                    hidden
                       disabled={state.filteredServices.length > 0}
-                    />
-                  </label>
+                  />
+                </label>
                   <label className={`file-upload-button ${state.filteredServices.length > 0 ? 'disabled' : ''}`}>
-                    Upload JSON
-                    <input 
-                      type="file" 
-                      onChange={(e) => handleFileChange(e, "json")}
-                      accept=".json" 
-                      hidden
+                  Upload UML
+                  <input 
+                    type="file" 
+                    onChange={(e) => handleFileChange(e, "uml")}
+                    accept=".uml,.plantuml,.puml" 
+                    hidden
                       disabled={state.filteredServices.length > 0}
-                    />
-                  </label>
+                  />
+                </label>
                   <label className={`file-upload-button ${state.filteredServices.length > 0 ? 'disabled' : ''}`}>
-                    Upload UML
-                    <input 
-                      type="file" 
-                      onChange={(e) => handleFileChange(e, "uml")}
-                      accept=".uml,.plantuml,.puml" 
-                      hidden
+                  Upload PDF
+                  <input 
+                    type="file" 
+                    onChange={(e) => handleFileChange(e, "pdf")}
+                    accept=".pdf" 
+                    hidden
                       disabled={state.filteredServices.length > 0}
-                    />
-                  </label>
-                  <label className={`file-upload-button ${state.filteredServices.length > 0 ? 'disabled' : ''}`}>
-                    Upload PDF
-                    <input 
-                      type="file" 
-                      onChange={(e) => handleFileChange(e, "pdf")}
-                      accept=".pdf" 
-                      hidden
-                      disabled={state.filteredServices.length > 0}
-                    />
-                  </label>
-                </>
-              )}
-            </div>
-            <button 
-              className="primary-button"
-              onClick={handleSendMessage}
-              disabled={state.isLoading}
-            >
-              Discover
-            </button>
+                  />
+                </label>
+              </>
+            )}
           </div>
+          <button 
+            className="primary-button"
+            onClick={handleSendMessage}
+            disabled={state.isLoading}
+          >
+            Discover
+          </button>
+        </div>
         ) : state.postSearchStep === "satisfaction" ? (
           <div className="post-search-ui">
             <p>Are you satisfied with the results?</p>
             <div className="post-search-actions">
-              <button className="primary-button" onClick={() => setState(prev => ({ ...prev, postSearchStep: "feedback" }))}>Yes</button>
-              <button className="secondary-button" onClick={() => setState(prev => ({ ...prev, postSearchStep: "noResults" }))}>No</button>
+              <button className="primary-button" onClick={() => handleSatisfactionResponse(true)}>Yes</button>
+              <button className="secondary-button" onClick={() => handleSatisfactionResponse(false)}>No</button>
             </div>
           </div>
-        ) : state.postSearchStep === "feedback" ? (
+        ) : state.postSearchStep === "rating" ? (
           <div className="post-search-ui">
-            <p>Please rate your experience and leave feedback:</p>
+            <p>Please rate your experience:</p>
             <div className="post-search-rating">
               <span>Rating: </span>
               {[1,2,3,4,5].map(star => (
@@ -506,32 +637,110 @@ const Discovery = () => {
               rows={2}
               style={{width: '100%', margin: '10px 0'}}
             />
-            <button className="primary-button" onClick={() => setState(prev => ({ ...prev, postSearchStep: "thankyou" }))}>Submit</button>
+            <button className="primary-button" onClick={() => handleFeedbackSubmit(state.rating, state.feedback)} disabled={!state.rating}>Submit</button>
           </div>
-        ) : state.postSearchStep === "thankyou" ? (
-          <div className="post-search-ui">
+        ) : state.postSearchStep === "complete" ? (
+          <div className="post-search-ui" style={{color: 'black', textAlign: 'center'}}>
             <p>Thank you for your feedback!</p>
-            <button className="primary-button" onClick={() => { window.location.reload(); }}>New Discovery</button>
+            <button 
+              className="primary-button"
+              style={{marginTop: '16px'}}
+              onClick={() => {
+                // Reset everything for new discovery
+                setState({
+                  messages: [{
+                    sender: "bot",
+                    text: "Hello! This is Servio AI Assistant, your smart assistant for efficient service discovery. What are the details of the service you are looking for?"
+                  }],
+                  filteredServices: [],
+                  inputValue: "",
+                  lastQuery: "",
+                  aspects: [],
+                  showAspectForm: false,
+                  postSearchStep: null,
+                  rating: 0,
+                  feedback: ""
+                });
+                setFollowUpIndex(0);
+              }}
+            >
+              New Discovery
+            </button>
           </div>
         ) : state.postSearchStep === "noResults" ? (
           <div className="post-search-ui">
             <p>No matching services found. What would you like to do?</p>
             <div className="post-search-actions">
-              <button 
-                className="primary-button" 
-                onClick={() => { 
-                  setState(prev => ({ 
-                    ...prev, 
-                    postSearchStep: null,
-                    showAspectForm: false,
-                    aspects: prev.aspects,
-                    inputValue: prev.lastQuery
-                  })); 
-                }}
-              >
-                Add More Aspects
-              </button>
-              <button className="secondary-button" onClick={() => alert('Chat with AI agent coming soon!')}>Chat with AI Agent</button>
+              {module === "direct" ? (
+                <>
+                  <button 
+                    className="primary-button" 
+                    onClick={() => { 
+                      setState(prev => ({ 
+                        ...prev, 
+                        postSearchStep: null,
+                        showAspectForm: false,
+                        aspects: prev.aspects,
+                        inputValue: prev.lastQuery
+                      })); 
+                    }}
+                  >
+                    Add More Aspects
+                  </button>
+                  <button className="secondary-button" onClick={() => alert('Chat with AI agent coming soon!')}>Chat with AI Agent</button>
+                </>
+              ) : (
+                <>
+                  <button 
+                    className="primary-button" 
+                    onClick={() => { 
+                      setState(prev => ({ 
+                        ...prev, 
+                        postSearchStep: null,
+                        inputValue: prev.lastQuery,
+                        messages: [
+                          ...prev.messages,
+                          {
+                            sender: "bot",
+                            text: "Let's continue our conversation. How else can I help you find a suitable service?"
+                          }
+                        ]
+                      })); 
+                    }}
+                  >
+                    Continue chatting with RAG chatbot
+                  </button>
+                  <button 
+                    className="secondary-button" 
+                    onClick={() => { 
+                      setState({
+                        messages: [
+                          { 
+                            sender: "bot", 
+                            text: "Hello! This is Servio AI Assistant, your smart assistant for efficient service discovery. What are the details of the service you are looking for?" 
+                          }
+                        ],
+                        inputValue: "",
+                        filteredServices: [],
+                        isLoading: false,
+                        errorMessage: "",
+                        showPopup: false,
+                        file: null,
+                        aspects: [],
+                        currentAspect: { key: "", value: "" },
+                        suggestedAspects: [],
+                        showAspectForm: false,
+                        postSearchStep: null,
+                        rating: 0,
+                        feedback: "",
+                        lastQuery: ""
+                      }); 
+                    }}
+                  >
+                    Start over
+                  </button>
+                </>
+              )}
             </div>
           </div>
         ) : null}
