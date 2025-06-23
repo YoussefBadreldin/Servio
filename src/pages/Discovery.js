@@ -379,28 +379,48 @@ const Discovery = () => {
           messages: [...prev.messages, { sender: "bot", text: directChatQuestions[nextStep] }]
         }));
       } else {
-        // All questions answered, send to API and show thank you, then results and satisfaction
+        // All questions answered, build user_requirements and send to new endpoint
+        const user_requirements = {
+          primary_goal: newAnswers[0] || "",
+          key_features: newAnswers[1] || "",
+          target_audience: newAnswers[2] || "",
+          platform: newAnswers[3] || "",
+          expected_user_load: newAnswers[4] || "",
+          budget_constraints: newAnswers[5] || "",
+          timeline_constraints: newAnswers[6] || ""
+        };
         setState(prev => ({
           ...prev,
-          messages: [...prev.messages, { sender: "bot", text: "Thank you for your answers! Our AI agent will process your request." }],
+          messages: [
+            ...prev.messages,
+            { sender: "bot", text: "Thank you for your answers! Our AI agent will process your request." },
+            { sender: "bot", text: "Discovery in progress..." }
+          ],
           directChatActive: false,
           isLoading: true
         }));
         try {
-          const response = await fetch("/api/direct/ai-agent-chat", {
+          const response = await fetch("http://localhost:8000/api/direct/mcp-discover", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ answers: newAnswers })
+            body: JSON.stringify({ user_requirements })
           });
           const data = await response.json();
+          // Format results for chat and results panel
           setState(prev => ({
             ...prev,
             isLoading: false,
             messages: [
-              ...prev.messages,
-              { sender: "bot", text: (data && data.results && data.results.length > 0) ? "Results found." : "No results found." }
+              ...prev.messages
             ],
-            filteredServices: (data && data.results) ? data.results : [],
+            // For the results panel, map to the expected format
+            filteredServices: (data.matches || []).map(match => ({
+              name: match.service_name,
+              description: match.reason_for_match,
+              confidence: match.rank ? (6 - match.rank) * 20 : 0, // Fake confidence for display
+              matched_features: match.matched_features || [],
+              rank: match.rank
+            })),
             postSearchStep: "satisfaction"
           }));
         } catch (e) {
@@ -502,7 +522,7 @@ const Discovery = () => {
           {state.messages.map((msg, i) => (
             <div key={i} className={`message ${msg.sender}`}>
               <p dangerouslySetInnerHTML={{ __html: msg.text.replace(/\n/g, '<br/>').replace(/\*\*(.+?)\*\*/g, '<b>$1</b>') }} />
-              {msg.file && <div className="file-attachment">�� {msg.file}</div>}
+              {msg.file && <div className="file-attachment"> {msg.file}</div>}
               {msg.files && Array.isArray(msg.files) && msg.files.map((fname, idx) => (
                 <div key={idx} className="file-attachment">📎 {fname}</div>
               ))}
@@ -588,7 +608,7 @@ const Discovery = () => {
           </div>
         )}
 
-        {!state.directChatActive && !state.postSearchStep && (state.aspects || []).length > 0 && (
+        {!(state.isLoading && !state.directChatActive && !state.postSearchStep) && !state.directChatActive && !state.postSearchStep && (state.aspects || []).length > 0 && (
           <div className="aspects-list">
             <h4>Current Aspects</h4>
             {(state.aspects || []).map((aspect, i) => (
@@ -620,7 +640,7 @@ const Discovery = () => {
           </div>
         )}
 
-        {!state.directChatActive && module === "direct" && !(state.aspects || []).length && !state.showAspectForm && !state.file && !state.postSearchStep && (
+        {!(state.isLoading && !state.directChatActive && !state.postSearchStep) && !state.directChatActive && module === "direct" && !(state.aspects || []).length && !state.showAspectForm && !state.file && !state.postSearchStep && (
           <button
             className="aspect-button"
             onClick={() => {
@@ -649,82 +669,83 @@ const Discovery = () => {
           </div>
         )}
 
-        {!state.postSearchStep ? (
-        <div className="input-area">
-          <input
-            type="text"
-            value={state.directChatActive ? state.inputValue : (module === "direct" && (state.filteredServices || []).length > 0 ? state.lastQuery : state.inputValue)}
-            onChange={(e) => setState(prev => ({ ...prev, inputValue: e.target.value }))}
-            placeholder={state.directChatActive ? directChatQuestions[state.directChatStep] : (module === "direct" ? "Enter your search query..." : "Describe the service you need...")}
-            onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-            disabled={state.directChatActive ? false : (module === "direct" ? (state.filteredServices || []).length > 0 || (!state.directChatActive && !!state.postSearchStep) : false)}
-          />
-          <div className="upload-buttons">
-            {module === "direct" ? (
-                <label className={`file-upload-button ${((state.filteredServices || []).length > 0) ? 'disabled' : ''}`}>
-                Upload XML
-                <input 
-                  type="file" 
-                  onChange={(e) => handleFileChange(e, "xml")}
-                  accept=".xml" 
-                  hidden
-                    disabled={(state.filteredServices || []).length > 0}
-                />
-              </label>
-            ) : (
-              <>
-                  <label className={`file-upload-button ${(state.files || []).length >= 10 ? 'disabled' : ''}`}>
+        {!(state.isLoading && !state.directChatActive && !state.postSearchStep) && !state.postSearchStep && (
+          <div className="input-area">
+            <input
+              type="text"
+              value={state.directChatActive ? state.inputValue : (module === "direct" && (state.filteredServices || []).length > 0 ? state.lastQuery : state.inputValue)}
+              onChange={(e) => setState(prev => ({ ...prev, inputValue: e.target.value }))}
+              placeholder={state.directChatActive ? directChatQuestions[state.directChatStep] : (module === "direct" ? "Enter your search query..." : "Describe the service you need...")}
+              onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+              disabled={state.directChatActive ? false : (module === "direct" ? (state.filteredServices || []).length > 0 || (!state.directChatActive && !!state.postSearchStep) : false)}
+            />
+            <div className="upload-buttons">
+              {module === "direct" ? (
+                  <label className={`file-upload-button ${((state.filteredServices || []).length > 0) ? 'disabled' : ''}`}> 
                   Upload XML
                   <input 
                     type="file" 
                     onChange={(e) => handleFileChange(e, "xml")}
                     accept=".xml" 
                     hidden
-                      disabled={(state.files || []).length >= 10}
+                      disabled={(state.filteredServices || []).length > 0}
                   />
                 </label>
-                  <label className={`file-upload-button ${(state.files || []).length >= 10 ? 'disabled' : ''}`}>
-                  Upload JSON
-                  <input 
-                    type="file" 
-                    onChange={(e) => handleFileChange(e, "json")}
-                    accept=".json" 
-                    hidden
-                      disabled={(state.files || []).length >= 10}
-                  />
-                </label>
-                  <label className={`file-upload-button ${(state.files || []).length >= 10 ? 'disabled' : ''}`}>
-                  Upload UML
-                  <input 
-                    type="file" 
-                    onChange={(e) => handleFileChange(e, "uml")}
-                    accept=".uml,.plantuml,.puml" 
-                    hidden
-                      disabled={(state.files || []).length >= 10}
-                  />
-                </label>
-                  <label className={`file-upload-button ${(state.files || []).length >= 10 ? 'disabled' : ''}`}>
-                  Upload PDF
-                  <input 
-                    type="file" 
-                    onChange={(e) => handleFileChange(e, "pdf")}
-                    accept=".pdf" 
-                    hidden
-                      disabled={(state.files || []).length >= 10}
-                  />
-                </label>
-              </>
-            )}
+              ) : (
+                <>
+                    <label className={`file-upload-button ${(state.files || []).length >= 10 ? 'disabled' : ''}`}>
+                    Upload XML
+                    <input 
+                      type="file" 
+                      onChange={(e) => handleFileChange(e, "xml")}
+                      accept=".xml" 
+                      hidden
+                        disabled={(state.files || []).length >= 10}
+                    />
+                  </label>
+                    <label className={`file-upload-button ${(state.files || []).length >= 10 ? 'disabled' : ''}`}>
+                    Upload JSON
+                    <input 
+                      type="file" 
+                      onChange={(e) => handleFileChange(e, "json")}
+                      accept=".json" 
+                      hidden
+                        disabled={(state.files || []).length >= 10}
+                    />
+                  </label>
+                    <label className={`file-upload-button ${(state.files || []).length >= 10 ? 'disabled' : ''}`}>
+                    Upload UML
+                    <input 
+                      type="file" 
+                      onChange={(e) => handleFileChange(e, "uml")}
+                      accept=".uml,.plantuml,.puml" 
+                      hidden
+                        disabled={(state.files || []).length >= 10}
+                    />
+                  </label>
+                    <label className={`file-upload-button ${(state.files || []).length >= 10 ? 'disabled' : ''}`}>
+                    Upload PDF
+                    <input 
+                      type="file" 
+                      onChange={(e) => handleFileChange(e, "pdf")}
+                      accept=".pdf" 
+                      hidden
+                        disabled={(state.files || []).length >= 10}
+                    />
+                  </label>
+                </>
+              )}
+            </div>
+            <button 
+              className="primary-button"
+              onClick={handleSendMessage}
+              disabled={state.isLoading}
+            >
+              Discover
+            </button>
           </div>
-          <button 
-            className="primary-button"
-            onClick={handleSendMessage}
-            disabled={state.isLoading}
-          >
-            Discover
-          </button>
-        </div>
-        ) : state.postSearchStep === "satisfaction" ? (
+        )}
+        {state.postSearchStep === "satisfaction" ? (
           <div className="post-search-ui">
             <p>Are you satisfied with the results?</p>
             <div className="post-search-actions">
