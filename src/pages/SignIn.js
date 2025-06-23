@@ -7,7 +7,7 @@ import GoogleLogo from "../assets/google-logo.png";
 import AppleLogo from "../assets/applelogo.png";
 import useScrollToTop from "../hooks/useScrollToTop";
 
-function SignIn({ setIsLoggedIn }) {
+function SignIn({ setIsLoggedIn, setUserEmail }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -43,6 +43,7 @@ function SignIn({ setIsLoggedIn }) {
 
       // Set login state
       setIsLoggedIn(true);
+      setUserEmail(email);
       // Store in session
       sessionStorage.setItem("isLoggedIn", "true");
       sessionStorage.setItem("userEmail", email);

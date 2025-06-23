@@ -48,7 +48,7 @@ function App() {
         <main className="main-content">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/signin" element={<SignIn setIsLoggedIn={setIsLoggedIn} />} />
+            <Route path="/signin" element={<SignIn setIsLoggedIn={setIsLoggedIn} setUserEmail={setUserEmail} />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/module-choice" element={
               <ProtectedRoute isLoggedIn={isLoggedIn}>
