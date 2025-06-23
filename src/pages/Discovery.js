@@ -43,7 +43,9 @@ const Discovery = () => {
     postSearchStep: null,
     rating: 0,
     feedback: "",
-    lastQuery: ""
+    lastQuery: "",
+    files: [],
+    refining: false
   });
 
   const [guidedStep, setGuidedStep] = useState(0);
@@ -152,8 +154,8 @@ const Discovery = () => {
     }));
 
     try {
-      if (module === "direct") {
-        await handleDirectDiscovery();
+      if (module === "direct" && (state.aspects.length > 0 || state.file || state.inputValue.trim())) {
+        await handleDirectDiscovery(state.inputValue);
       } else {
         await handleGuidedDiscovery();
       }
@@ -169,7 +171,7 @@ const Discovery = () => {
     }
   };
 
-  const handleDirectDiscovery = async () => {
+  const handleDirectDiscovery = async (query) => {
     if (state.aspects.length > 0) {
       const response = await fetch(`${API_BASE_URL}/direct/create-xml`, {
         method: "POST",
@@ -177,7 +179,7 @@ const Discovery = () => {
         body: JSON.stringify({ aspects: state.aspects })
       });
       const data = await response.json();
-      await performDiscovery(data.xml_path);
+      await performDiscovery(query, data.xml_path);
     } else if (state.file) {
       const formData = new FormData();
       formData.append("file", state.file);
@@ -187,9 +189,9 @@ const Discovery = () => {
         body: formData
       });
       const data = await response.json();
-      await performDiscovery(data.xml_path);
+      await performDiscovery(query, data.xml_path);
     } else {
-      await performDiscovery(null);
+      await performDiscovery(query, null);
     }
   };
 
@@ -203,22 +205,8 @@ const Discovery = () => {
     displayResults(data);
   };
 
-  const performDiscovery = useCallback((xmlPath) => {
-    const response = fetch(`${API_BASE_URL}/direct/discover`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        query: state.inputValue.trim(),
-        xml_path: xmlPath
-      })
-    });
-    const data = response.json();
-    displayResults(data);
-  }, [state.inputValue, displayResults]);
-
   const displayResults = useCallback((data) => {
     const results = data.matches || data.recommendations || [];
-    
     const formattedResults = results.map(service => ({
       name: service.name || service.service_name || service.func_name,
       full_name: service.full_name || "",
@@ -232,7 +220,6 @@ const Discovery = () => {
       confidence: service.confidence || service.similarity_score || 0,
       function_name: service.function_name || service.name || ""
     }));
-  
     setState(prev => ({
       ...prev,
       filteredServices: formattedResults,
@@ -251,9 +238,31 @@ const Discovery = () => {
     }));
   }, [module]);
 
+  const performDiscovery = useCallback((query, xmlPath) => {
+    fetch(`${API_BASE_URL}/direct/discover`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        query: query.trim(),
+        xml_path: xmlPath
+      })
+    })
+      .then(response => response.json())
+      .then(data => displayResults(data));
+  }, [displayResults]);
+
   const handleFileChange = (e, fileType = "xml") => {
     const selectedFile = e.target.files[0];
-    if (selectedFile) {
+    if (!selectedFile) return;
+    if (module === "guided") {
+      setState(prev => {
+        if ((prev.files || []).length >= 10) return prev;
+        return {
+          ...prev,
+          files: [...(prev.files || []), selectedFile]
+        };
+      });
+    } else {
       setState(prev => ({
         ...prev,
         file: selectedFile
@@ -287,15 +296,16 @@ const Discovery = () => {
     if (isSatisfied) {
       setState(prev => ({
         ...prev,
-        postSearchStep: "rating"
+        postSearchStep: "rating",
+        refining: false
       }));
     } else if (module === "guided") {
-      // Ask follow-up question and prepare for new search
       const nextQuestion = followUpQuestions[followUpIndex];
       setState(prev => ({
         ...prev,
         postSearchStep: null,
         inputValue: "",
+        refining: true,
         messages: [
           ...prev.messages,
           {
@@ -305,8 +315,11 @@ const Discovery = () => {
         ]
       }));
       setFollowUpIndex(prev => (prev + 1) % followUpQuestions.length);
-    } else {
-      // ... existing direct mode code ...
+    } else if (module === "direct") {
+      setState(prev => ({
+        ...prev,
+        postSearchStep: "noResults"
+      }));
     }
   };
 
@@ -327,19 +340,16 @@ const Discovery = () => {
   const handleUserInput = async (input) => {
     if (!input.trim()) return;
 
-    // Add user message
     setState(prev => ({
       ...prev,
       messages: [...prev.messages, { sender: "user", text: input }],
       inputValue: ""
     }));
 
-    // Track which question we're on (initial or follow-up)
     let currentStep = guidedStep;
     let allAnswers = [...guidedAnswers, input];
 
-    // If there are more guided questions, ask the next one
-    if (module === "guided" && currentStep < guidedQuestions.length) {
+    if (module === "guided" && !state.refining && currentStep < guidedQuestions.length) {
       setGuidedAnswers(allAnswers);
       setGuidedStep(currentStep + 1);
       setState(prev => ({
@@ -357,11 +367,11 @@ const Discovery = () => {
       return;
     }
 
-    // If all questions are answered or in refinement, perform search
-    if (module === "guided") {
+    // If in refinement or all questions are answered, perform search
+    if (module === "guided" && (state.refining || currentStep >= guidedQuestions.length)) {
       setGuidedAnswers(allAnswers);
       setGuidedStep(currentStep + 1);
-      setState(prev => ({ ...prev, isLoading: true }));
+      setState(prev => ({ ...prev, isLoading: true, refining: false }));
       const fullQuery = allAnswers.filter(Boolean).join(". ");
       try {
         const response = await fetch(`${API_BASE_URL}/guided/recommend`, {
@@ -418,7 +428,7 @@ const Discovery = () => {
             <div className="aspect-suggestions">
               <p>Suggested aspects:</p>
               <div className="suggestion-tags">
-                {state.suggestedAspects.map((aspect, i) => (
+                {(state.suggestedAspects || []).map((aspect, i) => (
                   <span 
                     key={i}
                     className={`aspect-tag ${state.currentAspect.key === aspect.key ? 'active' : ''}`}
@@ -489,10 +499,10 @@ const Discovery = () => {
           </div>
         )}
 
-        {!state.postSearchStep && state.aspects.length > 0 && (
+        {!state.postSearchStep && (state.aspects || []).length > 0 && (
           <div className="aspects-list">
             <h4>Current Aspects</h4>
-            {state.aspects.map((aspect, i) => (
+            {(state.aspects || []).map((aspect, i) => (
               <div key={i} className="aspect-item">
                 <span>{aspect.key}: {aspect.value}</span>
                 <button onClick={() => removeAspect(i)}>×</button>
@@ -515,7 +525,7 @@ const Discovery = () => {
         )}
 
         {/* Show uploaded file with remove option if file is uploaded and not showing aspects (for both direct and guided) */}
-        {state.file && !state.showAspectForm && state.aspects.length === 0 && !state.postSearchStep && (
+        {state.file && !state.showAspectForm && (state.aspects || []).length === 0 && !state.postSearchStep && (
           <div className="uploaded-file-box">
             <span>Uploaded file: {state.file.name}</span>
             <button className="remove-file-btn" onClick={() => setState(prev => ({ ...prev, file: null }))}>×</button>
@@ -523,7 +533,7 @@ const Discovery = () => {
         )}
 
         {/* Show Add Aspect button only if no aspects and not in post-search */}
-        {module === "direct" && !state.aspects.length && !state.showAspectForm && !state.file && !state.postSearchStep && (
+        {module === "direct" && !(state.aspects || []).length && !state.showAspectForm && !state.file && !state.postSearchStep && (
           <button
             className="aspect-button"
             onClick={() => {
@@ -535,68 +545,85 @@ const Discovery = () => {
           </button>
         )}
 
+        {module === "guided" && (state.files || []).length > 0 && !state.showAspectForm && !state.postSearchStep && (
+          <div className="uploaded-file-box">
+            <span>Uploaded files:</span>
+            <ul style={{margin: 0, padding: 0, listStyle: 'none'}}>
+              {(state.files || []).map((file, idx) => (
+                <li key={idx} style={{display: 'flex', alignItems: 'center', marginBottom: 4}}>
+                  <span style={{marginRight: 8}}>📎 {file.name}</span>
+                  <button className="remove-file-btn" onClick={() => setState(prev => ({
+                    ...prev,
+                    files: prev.files.filter((_, i) => i !== idx)
+                  }))}>×</button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {!state.postSearchStep ? (
         <div className="input-area">
           <input
             type="text"
-            value={module === "direct" && state.filteredServices.length > 0 ? state.lastQuery : state.inputValue}
+            value={module === "direct" && (state.filteredServices || []).length > 0 ? state.lastQuery : state.inputValue}
             onChange={(e) => setState(prev => ({ ...prev, inputValue: e.target.value }))}
             placeholder={module === "direct" ? "Enter your search query..." : "Describe the service you need..."}
             onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-            disabled={module === "direct" ? state.filteredServices.length > 0 : false}
+            disabled={module === "direct" ? (state.filteredServices || []).length > 0 : false}
           />
           <div className="upload-buttons">
             {module === "direct" ? (
-                <label className={`file-upload-button ${state.filteredServices.length > 0 ? 'disabled' : ''}`}>
+                <label className={`file-upload-button ${((state.filteredServices || []).length > 0) ? 'disabled' : ''}`}>
                 Upload XML
                 <input 
                   type="file" 
                   onChange={(e) => handleFileChange(e, "xml")}
                   accept=".xml" 
                   hidden
-                    disabled={state.filteredServices.length > 0}
+                    disabled={(state.filteredServices || []).length > 0}
                 />
               </label>
             ) : (
               <>
-                  <label className={`file-upload-button ${state.filteredServices.length > 0 ? 'disabled' : ''}`}>
+                  <label className={`file-upload-button ${(state.files || []).length >= 10 ? 'disabled' : ''}`}>
                   Upload XML
                   <input 
                     type="file" 
                     onChange={(e) => handleFileChange(e, "xml")}
                     accept=".xml" 
                     hidden
-                      disabled={state.filteredServices.length > 0}
+                      disabled={(state.files || []).length >= 10}
                   />
                 </label>
-                  <label className={`file-upload-button ${state.filteredServices.length > 0 ? 'disabled' : ''}`}>
+                  <label className={`file-upload-button ${(state.files || []).length >= 10 ? 'disabled' : ''}`}>
                   Upload JSON
                   <input 
                     type="file" 
                     onChange={(e) => handleFileChange(e, "json")}
                     accept=".json" 
                     hidden
-                      disabled={state.filteredServices.length > 0}
+                      disabled={(state.files || []).length >= 10}
                   />
                 </label>
-                  <label className={`file-upload-button ${state.filteredServices.length > 0 ? 'disabled' : ''}`}>
+                  <label className={`file-upload-button ${(state.files || []).length >= 10 ? 'disabled' : ''}`}>
                   Upload UML
                   <input 
                     type="file" 
                     onChange={(e) => handleFileChange(e, "uml")}
                     accept=".uml,.plantuml,.puml" 
                     hidden
-                      disabled={state.filteredServices.length > 0}
+                      disabled={(state.files || []).length >= 10}
                   />
                 </label>
-                  <label className={`file-upload-button ${state.filteredServices.length > 0 ? 'disabled' : ''}`}>
+                  <label className={`file-upload-button ${(state.files || []).length >= 10 ? 'disabled' : ''}`}>
                   Upload PDF
                   <input 
                     type="file" 
                     onChange={(e) => handleFileChange(e, "pdf")}
                     accept=".pdf" 
                     hidden
-                      disabled={state.filteredServices.length > 0}
+                      disabled={(state.files || []).length >= 10}
                   />
                 </label>
               </>
@@ -659,7 +686,8 @@ const Discovery = () => {
                   showAspectForm: false,
                   postSearchStep: null,
                   rating: 0,
-                  feedback: ""
+                  feedback: "",
+                  files: []
                 });
                 setFollowUpIndex(0);
               }}
@@ -733,7 +761,8 @@ const Discovery = () => {
                         postSearchStep: null,
                         rating: 0,
                         feedback: "",
-                        lastQuery: ""
+                        lastQuery: "",
+                        files: []
                       }); 
                     }}
                   >
@@ -748,33 +777,31 @@ const Discovery = () => {
 
       <div className="results-panel">
         <h3>Service Results</h3>
-        {state.filteredServices.length > 0 ? (
+        {((state.filteredServices || []).length > 0) ? (
           <div className="services-grid">
-            {state.filteredServices
-              .sort((a, b) => b.confidence - a.confidence)
-              .map((service, i) => (
-                <div key={i} className="service-card">
-                  <div className="service-header">
-                    <h4>{service.name}</h4>
-                    <span className="confidence-badge">
-                      {service.confidence ? `${service.confidence.toFixed(1)}` : "N/A"}
-                    </span>
-                  </div>
-                  <p className="service-description">
-                    {service.description?.substring(0, 150)}...
-                  </p>
-                  {service.url && (
-                    <div className="service-footer">
-                      <button 
-                        className="view-button"
-                        onClick={() => window.open(service.url, "_blank")}
-                      >
-                        View Service
-                      </button>
-                    </div>
-                  )}
+            {((state.filteredServices || []).sort((a, b) => b.confidence - a.confidence)).map((service, i) => (
+              <div key={i} className="service-card">
+                <div className="service-header">
+                  <h4>{service.name}</h4>
+                  <span className="confidence-badge">
+                    {service.confidence ? `${service.confidence.toFixed(1)}` : "N/A"}
+                  </span>
                 </div>
-              ))}
+                <p className="service-description">
+                  {service.description?.substring(0, 150)}...
+                </p>
+                {service.url && (
+                  <div className="service-footer">
+                    <button 
+                      className="view-button"
+                      onClick={() => window.open(service.url, "_blank")}
+                    >
+                      View Service
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         ) : (
           <div className="no-results">
