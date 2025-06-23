@@ -669,7 +669,10 @@ const Discovery = () => {
           </div>
         )}
 
-        {!(state.isLoading && !state.directChatActive && !state.postSearchStep) && !state.postSearchStep && (
+        {(
+          (module === "guided" && (state.refining || (!state.postSearchStep && !state.isLoading))) ||
+          (module === "direct" && !(state.isLoading && !state.directChatActive && !state.postSearchStep) && !state.postSearchStep)
+        ) && (
           <div className="input-area">
             <input
               type="text"
