@@ -426,6 +426,7 @@ const Discovery = () => {
         ...prev,
         messages: [
           ...prev.messages,
+          { sender: "user", text: input, files: (state.files || []).map(f => f.name) },
           { sender: "bot", text: guidedQuestions[currentStep] }
         ],
         lastQuery: input,
@@ -433,6 +434,7 @@ const Discovery = () => {
         file: null,
         isLoading: false,
         errorMessage: "",
+        files: []
       }));
       return;
     }
@@ -441,7 +443,16 @@ const Discovery = () => {
     if (module === "guided" && (state.refining || currentStep >= guidedQuestions.length)) {
       setGuidedAnswers(allAnswers);
       setGuidedStep(currentStep + 1);
-      setState(prev => ({ ...prev, isLoading: true, refining: false }));
+      setState(prev => ({
+        ...prev,
+        isLoading: true,
+        refining: false,
+        messages: [
+          ...prev.messages,
+          { sender: "user", text: input, files: (state.files || []).map(f => f.name) }
+        ],
+        files: []
+      }));
       const fullQuery = allAnswers.filter(Boolean).join(". ");
       try {
         const response = await fetch(`${API_BASE_URL}/guided/recommend`, {
@@ -486,7 +497,10 @@ const Discovery = () => {
           {state.messages.map((msg, i) => (
             <div key={i} className={`message ${msg.sender}`}>
               <p dangerouslySetInnerHTML={{ __html: msg.text.replace(/\n/g, '<br/>').replace(/\*\*(.+?)\*\*/g, '<b>$1</b>') }} />
-              {msg.file && <div className="file-attachment">📎 {msg.file}</div>}
+              {msg.file && <div className="file-attachment">�� {msg.file}</div>}
+              {msg.files && Array.isArray(msg.files) && msg.files.map((fname, idx) => (
+                <div key={idx} className="file-attachment">📎 {fname}</div>
+              ))}
             </div>
           ))}
           {state.isLoading && state.postSearchStep !== null && <div className="message bot">Processing...</div>}
