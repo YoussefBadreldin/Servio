@@ -164,7 +164,10 @@ const Discovery = () => {
 
     setState(prev => ({
       ...prev,
-      messages: newMessages,
+      messages: [
+        ...newMessages,
+        { sender: "bot", text: "Discovery in progress..." }
+      ],
       lastQuery: state.inputValue,
       inputValue: "",
       file: null,
@@ -449,9 +452,11 @@ const Discovery = () => {
         refining: false,
         messages: [
           ...prev.messages,
-          { sender: "user", text: input, files: (state.files || []).map(f => f.name) }
+          { sender: "user", text: input, files: (state.files || []).map(f => f.name) },
+          { sender: "bot", text: "Discovery in progress..." }
         ],
-        files: []
+        files: [],
+        inputValue: ""
       }));
       const fullQuery = allAnswers.filter(Boolean).join(". ");
       try {
