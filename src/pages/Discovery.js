@@ -23,6 +23,16 @@ const followUpQuestions = [
   "Do you need any specific support or maintenance options?"
 ];
 
+const directChatQuestions = [
+  "What is the primary goal of the software?",
+  "What are the key features? (comma-separated)",
+  "Who is the target audience?",
+  "What platform should the software be on? (web, mobile, desktop, iOS, Android, etc.)",
+  "What is the expected user load?",
+  "Are there any budget constraints?",
+  "Are there any timeline constraints?"
+];
+
 const Discovery = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -45,7 +55,10 @@ const Discovery = () => {
     feedback: "",
     lastQuery: "",
     files: [],
-    refining: false
+    refining: false,
+    directChatActive: false,
+    directChatStep: 0,
+    directChatAnswers: []
   });
 
   const [guidedStep, setGuidedStep] = useState(0);
@@ -117,6 +130,12 @@ const Discovery = () => {
   const handleSendMessage = async () => {
     if (!state.inputValue.trim() && !state.file) return;
   
+    // Direct chat flow: just call handleUserInput
+    if (state.directChatActive) {
+      await handleUserInput(state.inputValue);
+      return;
+    }
+
     let newMessages = [...state.messages];
 
     // For direct mode, if aspects exist, show query and aspects together
@@ -340,11 +359,62 @@ const Discovery = () => {
   const handleUserInput = async (input) => {
     if (!input.trim()) return;
 
-    setState(prev => ({
-      ...prev,
-      messages: [...prev.messages, { sender: "user", text: input }],
-      inputValue: ""
-    }));
+    // Direct chat flow
+    if (state.directChatActive) {
+      const nextStep = state.directChatStep + 1;
+      const newAnswers = [...state.directChatAnswers, input];
+      setState(prev => ({
+        ...prev,
+        messages: [...prev.messages, { sender: "user", text: input }],
+        inputValue: "",
+        directChatAnswers: newAnswers,
+        directChatStep: nextStep
+      }));
+      if (nextStep < directChatQuestions.length) {
+        setState(prev => ({
+          ...prev,
+          messages: [...prev.messages, { sender: "bot", text: directChatQuestions[nextStep] }]
+        }));
+      } else {
+        // All questions answered, send to API and show thank you, then results and satisfaction
+        setState(prev => ({
+          ...prev,
+          messages: [...prev.messages, { sender: "bot", text: "Thank you for your answers! Our AI agent will process your request." }],
+          directChatActive: false,
+          isLoading: true
+        }));
+        try {
+          const response = await fetch("/api/direct/ai-agent-chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ answers: newAnswers })
+          });
+          const data = await response.json();
+          setState(prev => ({
+            ...prev,
+            isLoading: false,
+            messages: [
+              ...prev.messages,
+              { sender: "bot", text: (data && data.results && data.results.length > 0) ? "Results found." : "No results found." }
+            ],
+            filteredServices: (data && data.results) ? data.results : [],
+            postSearchStep: "satisfaction"
+          }));
+        } catch (e) {
+          setState(prev => ({
+            ...prev,
+            isLoading: false,
+            messages: [
+              ...prev.messages,
+              { sender: "bot", text: "No results found." }
+            ],
+            filteredServices: [],
+            postSearchStep: "satisfaction"
+          }));
+        }
+      }
+      return;
+    }
 
     let currentStep = guidedStep;
     let allAnswers = [...guidedAnswers, input];
@@ -499,7 +569,7 @@ const Discovery = () => {
           </div>
         )}
 
-        {!state.postSearchStep && (state.aspects || []).length > 0 && (
+        {!state.directChatActive && !state.postSearchStep && (state.aspects || []).length > 0 && (
           <div className="aspects-list">
             <h4>Current Aspects</h4>
             {(state.aspects || []).map((aspect, i) => (
@@ -524,16 +594,14 @@ const Discovery = () => {
           </div>
         )}
 
-        {/* Show uploaded file with remove option if file is uploaded and not showing aspects (for both direct and guided) */}
-        {state.file && !state.showAspectForm && (state.aspects || []).length === 0 && !state.postSearchStep && (
+        {state.file && !state.showAspectForm && !state.postSearchStep && (state.aspects || []).length === 0 && (
           <div className="uploaded-file-box">
             <span>Uploaded file: {state.file.name}</span>
             <button className="remove-file-btn" onClick={() => setState(prev => ({ ...prev, file: null }))}>×</button>
           </div>
         )}
 
-        {/* Show Add Aspect button only if no aspects and not in post-search */}
-        {module === "direct" && !(state.aspects || []).length && !state.showAspectForm && !state.file && !state.postSearchStep && (
+        {!state.directChatActive && module === "direct" && !(state.aspects || []).length && !state.showAspectForm && !state.file && !state.postSearchStep && (
           <button
             className="aspect-button"
             onClick={() => {
@@ -566,11 +634,11 @@ const Discovery = () => {
         <div className="input-area">
           <input
             type="text"
-            value={module === "direct" && (state.filteredServices || []).length > 0 ? state.lastQuery : state.inputValue}
+            value={state.directChatActive ? state.inputValue : (module === "direct" && (state.filteredServices || []).length > 0 ? state.lastQuery : state.inputValue)}
             onChange={(e) => setState(prev => ({ ...prev, inputValue: e.target.value }))}
-            placeholder={module === "direct" ? "Enter your search query..." : "Describe the service you need..."}
+            placeholder={state.directChatActive ? directChatQuestions[state.directChatStep] : (module === "direct" ? "Enter your search query..." : "Describe the service you need...")}
             onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-            disabled={module === "direct" ? (state.filteredServices || []).length > 0 : false}
+            disabled={state.directChatActive ? false : (module === "direct" ? (state.filteredServices || []).length > 0 || (!state.directChatActive && !!state.postSearchStep) : false)}
           />
           <div className="upload-buttons">
             {module === "direct" ? (
@@ -687,7 +755,10 @@ const Discovery = () => {
                   postSearchStep: null,
                   rating: 0,
                   feedback: "",
-                  files: []
+                  files: [],
+                  directChatActive: false,
+                  directChatStep: 0,
+                  directChatAnswers: []
                 });
                 setFollowUpIndex(0);
               }}
@@ -715,7 +786,22 @@ const Discovery = () => {
                   >
                     Add More Aspects
                   </button>
-                  <button className="secondary-button" onClick={() => alert('Chat with AI agent coming soon!')}>Chat with AI Agent</button>
+                  <button className="secondary-button" onClick={() => {
+                    setState(prev => ({
+                      ...prev,
+                      directChatActive: true,
+                      directChatStep: 0,
+                      directChatAnswers: [],
+                      messages: [
+                        ...prev.messages,
+                        { sender: "bot", text: directChatQuestions[0] }
+                      ],
+                      postSearchStep: null,
+                      inputValue: ""
+                    }));
+                  }}>
+                    Chat with AI Agent
+                  </button>
                 </>
               ) : (
                 <>
