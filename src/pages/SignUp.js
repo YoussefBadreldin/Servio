@@ -34,7 +34,7 @@ function SignUp() {
 
   return (
     <div className="signup-container">
-      <h2>Create a New Account</h2>
+      <h2 style={{ marginTop: '3rem' }}>Create a New Account</h2>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
