@@ -1,10 +1,17 @@
 // src/components/NavBar.js
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../styles/Navbar.css"; // Adjust the path if needed
 import Logo from "../assets/HOR_LOGO.png"; // Ensure this path is correct
 
-function Navbar({ isLoggedIn, username }) {
+function Navbar({ isLoggedIn, username, onLogout }) {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    onLogout();
+    navigate('/');
+  };
+
   return (
     <nav className="navbar">
       <div className="navbar-logo">
@@ -35,7 +42,7 @@ function Navbar({ isLoggedIn, username }) {
         {isLoggedIn ? (
           <div className="user-section">
             <span className="welcome-text">Welcome, {username}!</span>
-            <Link to="/logout" className="auth-button logout-button">Logout</Link>
+            <button onClick={handleLogout} className="auth-button logout-button">Logout</button>
           </div>
         ) : (
           <div className="auth-buttons">

@@ -1,7 +1,6 @@
 // src/App.js
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import './app.css'; 
 
 import Home from "./pages/Home";
@@ -13,37 +12,82 @@ import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
-  const [message, setMessage] = useState("");
-  const [userProfile, setUserProfile] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
 
+  // Check for existing session on component mount
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/")
-      .then((response) => {
-        setMessage(response.data);
-      })
-      .catch((error) => console.error("Error fetching data:", error));
-
-    setUserProfile({ role: "admin" });
+    const loggedIn = sessionStorage.getItem("isLoggedIn") === "true";
+    const email = sessionStorage.getItem("userEmail");
+    if (loggedIn && email) {
+      setIsLoggedIn(true);
+      setUserEmail(email);
+    }
   }, []);
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setUserEmail('');
+    sessionStorage.removeItem("isLoggedIn");
+    sessionStorage.removeItem("userEmail");
+  };
 
   return (
     <Router>
       <div className="App">
-        <Navbar userProfile={userProfile} />
+        <Navbar isLoggedIn={isLoggedIn} username={userEmail} onLogout={handleLogout} />
         <main className="main-content">
-          <h1>{message}</h1>
           <Routes>
+            {/* Root and /signup are public */}
             <Route path="/" element={<Home />} />
-            <Route path="/module-choice" element={<ModuleChoice />} />
-            <Route path="/registry-choice" element={<RegistryChoice />} />
-            <Route path="/build-registry" element={<BuildRegistry />} />
-            <Route path="/discovery" element={<Discovery />} />
-            <Route path="/signin" element={<SignIn />} />
             <Route path="/signup" element={<SignUp />} />
-            <Route path="/admin" element={<div>Admin Page</div>} />
+            {/* SignIn route: only accessible if not logged in */}
+            <Route 
+              path="/signin" 
+              element={
+                isLoggedIn ? 
+                  <Navigate to="/module-choice" replace /> : 
+                  <SignIn setIsLoggedIn={setIsLoggedIn} />
+              } 
+            />
+            {/* All other routes are protected */}
+            <Route
+              path="/module-choice"
+              element={
+                <ProtectedRoute isLoggedIn={isLoggedIn}>
+                  <ModuleChoice />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/build-registry"
+              element={
+                <ProtectedRoute isLoggedIn={isLoggedIn}>
+                  <BuildRegistry />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/discovery"
+              element={
+                <ProtectedRoute isLoggedIn={isLoggedIn}>
+                  <Discovery />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/registry-choice"
+              element={
+                <ProtectedRoute isLoggedIn={isLoggedIn}>
+                  <RegistryChoice />
+                </ProtectedRoute>
+              }
+            />
+            {/* Catch all route - redirect to root */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
         <Footer />
