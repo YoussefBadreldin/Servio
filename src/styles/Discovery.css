@@ -330,6 +330,7 @@
   width: 70%;
   max-width: 350px;
   margin-right: -40px;
+  margin-bottom: -30px;
 }
 
 .input-row label {
@@ -354,7 +355,8 @@
 
 .input-row input::placeholder {
   color: black !important;
-  opacity: 0.6;
+  opacity: 0.2;
+  font-size: 0.8rem;
 }
 
 .input-row input:focus {
